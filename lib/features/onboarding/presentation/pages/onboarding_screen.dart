@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../widgets/onboarding_progress_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/rating_dialog.dart';
 import 'paywall_screen.dart';
 
@@ -60,13 +61,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
-  void _onContinue() {
+  // features/onboarding/presentation/pages/onboarding_screen.dart ичиндеги _onContinue гана өзгөрөт
+  void _onContinue() async {
     if (_currentPage < _pages.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.ease,
       );
     } else {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('has_seen_onboarding', true);
+  
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const PaywallScreen()),

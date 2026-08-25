@@ -23,6 +23,15 @@ class AppTextStyles {
     color: AppColors.white,
   );
 
+  static const headline52 = TextStyle(
+    fontFamily: 'DancingScript',
+    fontSize: 52,
+    fontWeight: FontWeight.w700,
+    height: 1.4,
+    letterSpacing: -0.168, // -0.6%
+    color: AppColors.white,
+  );
+
   // "Black Tie Classic" стилдеги карточка аталышы — Dancing Script 20 bold
   static const script20 = TextStyle(
     fontFamily: 'DancingScript',
@@ -37,6 +46,15 @@ class AppTextStyles {
   static const title21 = TextStyle(
     fontFamily: 'Raleway',
     fontSize: 21,
+    fontWeight: FontWeight.w700,
+    height: 1.4,
+    letterSpacing: 0.42, // 2%
+    color: AppColors.white,
+  );
+
+  static const title22 = TextStyle(
+    fontFamily: 'Raleway',
+    fontSize: 16,
     fontWeight: FontWeight.w700,
     height: 1.4,
     letterSpacing: 0.42, // 2%

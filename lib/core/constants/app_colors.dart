@@ -8,4 +8,5 @@ class AppColors {
   static const brown = Color(0xFF433A28);
   static const wine = Color(0xFF431F28);
   static const navy = Color(0xFF1B344E);
+  static const bmain = Color(0xFF141927);
 }

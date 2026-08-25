@@ -20,90 +20,121 @@ class PaywallScreen extends StatelessWidget {
           ),
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextButton(
-                    onPressed: () {},
-                    style: TextButton.styleFrom(
-                      backgroundColor: AppColors.accent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  SizedBox(
+                    height: 56,
+                    child: TextButton(
+                      onPressed: () {},
+                      style: TextButton.styleFrom(
+                        backgroundColor: AppColors.accent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Restore Purchase', 
+                        style: AppTextStyles.title22
+                        
                       ),
                     ),
-                    child: const Text('Restore Purchase', style: TextStyle(color: Colors.white)),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: IconButton.styleFrom(
-                      backgroundColor: AppColors.accent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  SizedBox(
+                    width: 56,
+                    height: 56,
+                    child: IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.accent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      icon: const Icon(
+                        Icons.close, 
+                        color: Colors.white,
+                        size: 36,
                       ),
                     ),
-                    icon: const Icon(Icons.close, color: Colors.white),
                   ),
                 ],
               ),
             ),
           ),
           Positioned(
-            left: 20,
-            right: 20,
-            bottom: 24,
+            left: 25,
+            right: 25,
+            bottom: 155,
             child: Container(
-              padding: const EdgeInsets.all(20),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
               decoration: BoxDecoration(
-                color: AppColors.navy.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(20),
+                color: AppColors.bmain,
+                borderRadius: BorderRadius.circular(9),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Get premium', style: AppTextStyles.body16),
-                  const SizedBox(height: 12),
-                  const _PaywallFeature(text: 'Keep your costumes handy'),
-                  const Divider(color: Colors.white24),
-                  const _PaywallFeature(text: 'Add unlimited costumes'),
-                  const Divider(color: Colors.white24),
-                  const _PaywallFeature(text: 'Stats for the whole time'),
+                  const Text(
+                    'Get premium', 
+                    style: AppTextStyles.headline52,
+                  ),
                   const SizedBox(height: 16),
-                  SizedBox(
+                  const _PaywallFeature(
+                    text: 'Keep your costumes handy',
+                    
+                  ),
+                  Divider(color: Color(0xff454954), height: 24),
+                  const _PaywallFeature(text: 'Add unlimited costumes'),
+                  Divider(color: Color(0xff454954), height: 24),
+                  const _PaywallFeature(text: 'Stats for the whole time'),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 95,
+            left: 25,
+            right: 25,
+            child: SizedBox(
                     width: double.infinity,
-                    height: 48,
+                    height: 52,
                     child: ElevatedButton(
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.accent,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(9),
                         ),
                       ),
                       child: const Text(
                         'Update to premium for \$0.99',
-                        style: TextStyle(color: Colors.white),
+                        style: AppTextStyles.body16,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+          ),
+          Positioned(
+            bottom: 44,
+            left: 25,
+            right: 25,
+            child:  Row(
                     children: [
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text('Terms of use', style: TextStyle(color: Colors.white)),
+                      Expanded(
+                        child: _PaywallOutlinedButton(
+                          text: 'Terms of use', onTap: () {}),
                       ),
-                      const Text('|', style: TextStyle(color: Colors.white38)),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text('Privacy Policy', style: TextStyle(color: Colors.white)),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _PaywallOutlinedButton(
+                          text: 'Privacy Policy', 
+                          onTap: () {},
+                        ),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
           ),
         ],
       ),
@@ -117,9 +148,39 @@ class _PaywallFeature extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Text(text, style: AppTextStyles.title21),
+    return Text(
+      text,
+      textAlign: TextAlign.center,
+      style: AppTextStyles.body16,
+    );
+  }
+}
+
+class _PaywallOutlinedButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onTap;
+  const _PaywallOutlinedButton({required this.text, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 40,
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(9),
+          ),
+          elevation: 0,
+        ),
+        child: Text(
+          text,
+          style: AppTextStyles.captionBold12.copyWith(
+            color: AppColors.bmain,  
+          )
+        ),
+      ),
     );
   }
 }
