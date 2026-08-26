@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../suits/presentation/pages/suits_main_screen.dart';
 
 class PaywallScreen extends StatelessWidget {
   const PaywallScreen({super.key});
@@ -45,7 +46,12 @@ class PaywallScreen extends StatelessWidget {
                     width: 56,
                     height: 56,
                     child: IconButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SuitsMainScreen()),
+                      );
+                     },
                       style: IconButton.styleFrom(
                         backgroundColor: AppColors.accent,
                         shape: RoundedRectangleBorder(
