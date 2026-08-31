@@ -1,9 +1,12 @@
 // main.dart
 import 'package:flutter/material.dart';
 import 'core/constants/app_colors.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'features/onboarding/presentation/pages/splash_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
   runApp(const GentlemanProApp());
 }
 

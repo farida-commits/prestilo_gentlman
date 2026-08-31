@@ -1,4 +1,5 @@
 // features/suits/presentation/widgets/confirm_dialog.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 
@@ -25,6 +26,7 @@ class ConfirmDialog extends StatelessWidget {
   }) async {
     final result = await showDialog<bool>(
       context: context,
+      barrierDismissible: true,
       builder: (_) => ConfirmDialog(
         title: title,
         message: message,
@@ -38,58 +40,79 @@ class ConfirmDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                color: Color(0xff001420),
-              ),
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+          child: Container(
+            width: 270,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF2F2F2).withValues(alpha: 0.8), // #F2F2F2CC
+              borderRadius: BorderRadius.circular(14),
             ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13, color: Color(0xff5a6472)),
-            ),
-            const SizedBox(height: 16),
-            const Divider(height: 1, color: Color(0x3C3C435C)),
-            Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(color: AppColors.accent, fontSize: 17),
-                    ),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xff001420),
                   ),
                 ),
-                Container(width: 1, height: 44, color: const Color(0x3C3C435C)),
-                Expanded(
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    child: Text(
-                      confirmText,
-                      style: TextStyle(
-                        color: isDestructive ? Colors.red : AppColors.accent,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
+                const SizedBox(height: 8),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xff5a6472),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Divider(height: 1, color: Color(0x3C3C435C)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            color: AppColors.accent,
+                            fontSize: 17,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    Container(
+                      width: 1,
+                      height: 44,
+                      color: const Color(0x3C3C435C),
+                    ),
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: Text(
+                          confirmText,
+                          style: TextStyle(
+                            color: isDestructive ? Colors.red : AppColors.accent,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );

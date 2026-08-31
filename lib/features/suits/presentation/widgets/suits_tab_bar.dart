@@ -19,6 +19,7 @@ class SuitsTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _tab(context, 'All', SuitFilter.all, true),
         const SizedBox(width: 20),
@@ -35,24 +36,40 @@ class SuitsTabBar extends StatelessWidget {
       onTap: enabled ? () => onChanged(value) : null,
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             label,
             style: TextStyle(
               fontFamily: 'Raleway',
-              fontSize: 16,
-              fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+              fontSize: 21,
+              fontWeight: FontWeight.w700,
               color: !enabled
-                  ? Colors.white.withOpacity(0.25)
+                  ? Colors.white
                   : (isActive ? AppColors.accent : Colors.white),
             ),
           ),
           const SizedBox(height: 4),
           if (isActive)
-            Container(
-              height: 2,
-              width: 20,
-              color: AppColors.accent,
+            Builder(
+              builder: (context) {
+                final textPainter = TextPainter(
+                  text: TextSpan(
+                    text: label,
+                    style: const TextStyle(
+                      fontFamily: 'Raleway',
+                      fontSize: 21,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  textDirection: TextDirection.ltr,
+                )..layout();
+                return Container(
+                  height: 2,
+                  width: textPainter.width,
+                  color: AppColors.accent,
+                );
+              },
             ),
         ],
       ),

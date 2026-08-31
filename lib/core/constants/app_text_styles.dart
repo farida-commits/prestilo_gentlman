@@ -81,7 +81,6 @@ class AppTextStyles {
     color: AppColors.white,
   );
 
-  // Suits — Dancing Script 28 bold (headline28 менен бирдей, өзүнчө семантика үчүн)
   static const suits = TextStyle(
     fontFamily: 'DancingScript',
     fontSize: 28,
@@ -100,4 +99,12 @@ class AppTextStyles {
     color: AppColors.white,
   );
 
+  static const caption = TextStyle(
+    fontFamily: 'Raleway',
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    height: 1.2,
+    letterSpacing: 0,
+    color: AppColors.white,
+  );
 }

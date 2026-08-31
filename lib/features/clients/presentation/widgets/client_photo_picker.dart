@@ -1,0 +1,73 @@
+// features/clients/presentation/widgets/client_photo_picker.dart
+import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/suit_image_widget.dart';
+
+class ClientPhotoPicker extends StatelessWidget {
+  final String? imagePath;
+  final Uint8List? cachedBytes;
+  final VoidCallback onPick;
+  final VoidCallback onDelete;
+
+  const ClientPhotoPicker({
+    super.key,
+    required this.imagePath,
+    this.cachedBytes,
+    required this.onPick,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: imagePath == null ? onPick : null,
+        borderRadius: BorderRadius.circular(9),
+        child: Container(
+          width: double.infinity,
+          height: 260,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: AppColors.navy,
+            borderRadius: BorderRadius.circular(9),
+          ),
+          child: imagePath == null
+              ? const Center(
+                  child: Icon(Icons.image_outlined, size: 44, color: Colors.white38),
+                )
+              : Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    cachedBytes != null
+                        ? Image.memory(cachedBytes!, fit: BoxFit.cover, gaplessPlayback: true)
+                        : SuitImageWidget(imagePath: imagePath!),
+                    Positioned(
+                      right: 10,
+                      bottom: 10,
+                      child: GestureDetector(
+                        onTap: onDelete,
+                        child: Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: AppColors.wine,
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                          child: Image.asset(
+                            'assets/images/delete.png',
+                            width: 20,
+                            height: 20,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+}

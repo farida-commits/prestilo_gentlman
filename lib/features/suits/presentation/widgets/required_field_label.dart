@@ -12,17 +12,21 @@ class RequiredFieldLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(text, style: AppTextStyles.caption12),
+        Text(text, style: AppTextStyles.caption),
         if (!isFilled) ...[
           const SizedBox(width: 4),
-          Container(
-            width: 5,
-            height: 5,
-            decoration: const BoxDecoration(
-              color: AppColors.accent,
-              shape: BoxShape.circle,
+          Padding(
+            padding: const EdgeInsets.only(top: 1,),
+            child: Container(
+              alignment: Alignment.topRight,
+              width: 5,
+              height: 5,
+              decoration: const BoxDecoration(
+                color: AppColors.accent,
+                shape: BoxShape.circle,
+              ),
             ),
           ),
         ],

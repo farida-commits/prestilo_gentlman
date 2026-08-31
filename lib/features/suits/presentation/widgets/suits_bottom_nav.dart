@@ -6,20 +6,24 @@ class SuitsBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  const SuitsBottomNav({super.key, required this.currentIndex, required this.onTap});
+  const SuitsBottomNav({
+    super.key, 
+    required this.currentIndex, 
+    required this.onTap
+    });
 
-  static const _icons = [
-    Icons.checkroom, // Suits
-    Icons.receipt_long, // Rental history
-    Icons.bar_chart, // Statistics
-    Icons.tune, // Settings
+   static const List<String> _icons = [
+    'assets/images/suits.png',
+    'assets/images/rental.png',
+    'assets/images/statistics.png',
+    'assets/images/settings.png',
   ];
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(_icons.length, (index) {
+      children: List.generate(4, (index) {
         final bool isActive = index == currentIndex;
         return GestureDetector(
           onTap: () => onTap(index),
@@ -28,14 +32,14 @@ class SuitsBottomNav extends StatelessWidget {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: isActive ? AppColors.accent : AppColors.navy,
-              borderRadius: BorderRadius.circular(14),
+              color: isActive ? AppColors.accent : AppColors.bmain,
+              borderRadius: BorderRadius.circular(9),
             ),
-            child: Icon(
+            child: Image.asset(
               _icons[index],
-              color: Colors.white,
-              size: 24,
-            ),
+              width: 32,
+              height: 32,
+            )
           ),
         );
       }),

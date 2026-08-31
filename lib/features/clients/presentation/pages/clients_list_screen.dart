@@ -1,27 +1,25 @@
-// features/clients/presentation/pages/clients_screen.dart
+// features/clients/presentation/pages/clients_list_screen.dart
+// (Rental history'ден чакырылуучу башкаруу экраны — Select баскычы жок, тап -> деталь)
 import 'package:flutter/material.dart';
-import 'package:gentleman/features/suits/domain/entities/client_entity.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
-import '../widgets/client_card.dart';
-import '../widgets/lease_date_picker_dialog.dart';
-import '../widgets/lease_result.dart';
-import 'add_edit_client_screen.dart';
 import '../../data/datasources/client_local_datasource.dart';
+import 'package:gentleman/features/suits/domain/entities/client_entity.dart';
+import '../widgets/client_card.dart';
+import 'add_edit_client_screen.dart';
+import 'client_detail_screen.dart';
 
-class ClientsScreen extends StatefulWidget {
-  const ClientsScreen({super.key});
+class ClientsListScreen extends StatefulWidget {
+  const ClientsListScreen({super.key});
 
   @override
-  State<ClientsScreen> createState() => _ClientsScreenState();
+  State<ClientsListScreen> createState() => _ClientsListScreenState();
 }
 
-class _ClientsScreenState extends State<ClientsScreen> {
+class _ClientsListScreenState extends State<ClientsListScreen> {
   final ClientLocalDataSource _dataSource = ClientLocalDataSource();
-
   List<ClientEntity> _clients = [];
   bool _isLoading = true;
-  String? _selectedClientId;
 
   @override
   void initState() {
@@ -37,36 +35,33 @@ class _ClientsScreenState extends State<ClientsScreen> {
     });
   }
 
-  Future<void> _openAddClient() async {
-    final result = await Navigator.push(
+  Future<void> _openAdd() async {
+    await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const AddEditClientScreen()),
     );
-    if (result != null) _loadClients();
+    _loadClients();
   }
 
-  Future<void> _onSelectPressed() async {
-    if (_selectedClientId == null) return;
-    final client = _clients.firstWhere((c) => c.id == _selectedClientId);
-
-    final result = await showDialog<LeaseResult>(
-      context: context,
-      builder: (_) => LeaseDatePickerDialog(client: client),
+  Future<void> _openDetail(ClientEntity client) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ClientDetailScreen(client: client, onDeleted: _loadClients),
+      ),
     );
-
-    if (result != null && mounted) {
-      Navigator.pop(context, result);
-    }
+    _loadClients();
   }
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Scaffold(
+      return const Scaffold(
         backgroundColor: AppColors.bgMain,
         body: Center(child: CircularProgressIndicator(color: AppColors.accent)),
       );
     }
+
     final bool isEmpty = _clients.isEmpty;
 
     return Scaffold(
@@ -85,7 +80,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: AppColors.bmain,
+                        color: AppColors.navy,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(Icons.arrow_back, color: Colors.white),
@@ -97,18 +92,15 @@ class _ClientsScreenState extends State<ClientsScreen> {
                       height: 44,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: AppColors.bmain,
+                        color: AppColors.navy,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Text(
-                        'Your clients',
-                        style: AppTextStyles.suits,
-                      ),
+                      child: const Text('Your clients', style: AppTextStyles.suits),
                     ),
                   ),
                   const SizedBox(width: 10),
                   GestureDetector(
-                    onTap: _openAddClient,
+                    onTap: _openAdd,
                     child: Container(
                       width: 44,
                       height: 44,
@@ -130,40 +122,30 @@ class _ClientsScreenState extends State<ClientsScreen> {
                         margin: const EdgeInsets.symmetric(horizontal: 20),
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: AppColors.bmain,
+                          color: AppColors.navy.withOpacity(0.9),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Text(
-                              'No clients',
-                              style: AppTextStyles.headline28,
-                            ),
+                            const Text('No clients', style: AppTextStyles.headline28),
                             const SizedBox(height: 8),
                             Text(
                               "You haven't added customers to\nselect them yet, fix that sooner\nrather than later",
                               textAlign: TextAlign.center,
-                              style: AppTextStyles.caption12.copyWith(
-                                color: Colors.white70,
-                              ),
+                              style: AppTextStyles.caption12.copyWith(color: Colors.white70),
                             ),
                             const SizedBox(height: 20),
                             SizedBox(
                               width: double.infinity,
                               height: 48,
                               child: ElevatedButton(
-                                onPressed: _openAddClient,
+                                onPressed: _openAdd,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.accent,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
-                                child: const Text(
-                                  'Create the first one',
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                                child: const Text('Create the first one', style: TextStyle(color: Colors.white)),
                               ),
                             ),
                           ],
@@ -177,35 +159,11 @@ class _ClientsScreenState extends State<ClientsScreen> {
                         final client = _clients[index];
                         return ClientCard(
                           client: client,
-                          isSelected: _selectedClientId == client.id,
-                          onTap: () =>
-                              setState(() => _selectedClientId = client.id),
+                          isSelected: false,
+                          onTap: () => _openDetail(client),
                         );
                       },
                     ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-              child: SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: _selectedClientId == null
-                      ? null
-                      : _onSelectPressed,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accent,
-                    disabledBackgroundColor: AppColors.accent.withValues(alpha: 0.4),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Select',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
             ),
           ],
         ),

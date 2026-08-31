@@ -1,8 +1,9 @@
-// features/clients/presentation/widgets/client_card.dart
+// features/clients/presentation/widgets/client_card.dart — толук алмаштыр
 import 'package:flutter/material.dart';
+import 'package:gentleman/features/suits/domain/entities/client_entity.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
-import 'package:gentleman/features/suits/domain/entities/client_entity.dart';
+import '../../../../core/widgets/suit_image_widget.dart';
 
 class ClientCard extends StatelessWidget {
   final ClientEntity client;
@@ -24,7 +25,7 @@ class ClientCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         height: 90,
         decoration: BoxDecoration(
-          color: AppColors.navy,
+          color: AppColors.bgMain,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppColors.accent : Colors.transparent,
@@ -35,12 +36,18 @@ class ClientCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.horizontal(left: Radius.circular(14)),
-              child: Image.asset(
-                client.imagePath,
-                width: 80,
-                height: 88,
-                fit: BoxFit.cover,
-              ),
+              child: client.photoPath != null
+                  ? SuitImageWidget(
+                      imagePath: client.photoPath!,
+                      width: 80,
+                      height: 88,
+                    )
+                  : Container(
+                      width: 80,
+                      height: 88,
+                      color: AppColors.bmain,
+                      child: const Icon(Icons.person, color: Colors.white38, size: 32),
+                    ),
             ),
             Expanded(
               child: Padding(
@@ -52,8 +59,6 @@ class ClientCard extends StatelessWidget {
                     Text(client.name, style: AppTextStyles.script20),
                     const SizedBox(height: 4),
                     _row('Tel.', client.phone, valueColor: AppColors.accent),
-                    _row('Loyalty', client.loyalty.toString()),
-                    _row('Favorite suit', client.favoriteSuit),
                   ],
                 ),
               ),

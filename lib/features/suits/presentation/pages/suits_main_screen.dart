@@ -1,12 +1,14 @@
-// features/suits/presentation/pages/suits_main_screen.dart
+// features/suits/presentation/pages/suits_main_screen.dart — толук алмаштыр
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../data/datasources/suit_local_datasource.dart';
 import '../../domain/entities/suit_entity.dart';
 import '../widgets/suit_card.dart';
 import '../widgets/suits_tab_bar.dart';
 import '../widgets/suits_bottom_nav.dart';
-import 'package:gentleman/features/suits/presentation/pages/suit_detail_screen.dart';
+import 'add_edit_suit_screen.dart';
+import 'suit_detail_screen.dart';
 
 class SuitsMainScreen extends StatefulWidget {
   const SuitsMainScreen({super.key});
@@ -16,77 +18,48 @@ class SuitsMainScreen extends StatefulWidget {
 }
 
 class _SuitsMainScreenState extends State<SuitsMainScreen> {
-  // mock data — кийин Hive'дан алабыз
-  final List<SuitEntity> _suits = [
-    const SuitEntity(
-      id: '1',
-      name: 'Black Tie Classic',
-      brand: 'Hugo Boss',
-      price: '\$450',
-      fabric: '100% Wool',
-      size: '50',
-      imagePath: 'assets/images/suit_1.png',
-      status: SuitStatus.inStock,
-      description: 'ddd1',
-      deposit: '1',
-    ),
-    const SuitEntity(
-      id: '2',
-      name: 'Royal Navy Suit',
-      brand: 'Tom Ford',
-      price: '\$600',
-      fabric: 'Wool & Cashmere',
-      size: '48',
-      imagePath: 'assets/images/suit_2.png',
-      status: SuitStatus.overdue,
-      dateLabel: '2 days overdue',
-      description: 'ddd2',
-      deposit: '2',
-    ),
-    const SuitEntity(
-      id: '3',
-      name: 'Vintage Tails 1920',
-      brand: 'Tailcoat (Vintage)',
-      price: '\$1200',
-      fabric: 'Wool with Satin',
-      size: '50',
-      imagePath: 'assets/images/suit_3.png',
-      status: SuitStatus.leased,
-      dateLabel: '31.10.2025',
-      description: 'ddd3',
-      deposit: '3',
-    ),
-    const SuitEntity(
-      id: '4',
-      name: 'Summer Linen Set',
-      brand: 'Massimo Dutti',
-      price: '\$300',
-      fabric: '100% Linen',
-      size: '47',
-      imagePath: 'assets/images/suit_4.png',
-      status: SuitStatus.leased,
-      dateLabel: '29.10.2025',
-      description: 'ddd4',
-      deposit: '4',
-    ),
-    const SuitEntity(
-      id: '5',
-      name: 'Velvet Burgundy Jacket',
-      brand: 'Massimo Dutti',
-      price: '\$250',
-      fabric: 'Velvet',
-      size: '49',
-      imagePath: 'assets/images/suit_1.png',
-      status: SuitStatus.inStock,
-      description: 'ddd5',
-      deposit: '5',
-    ),
-  ];
+  final SuitLocalDataSource _dataSource = SuitLocalDataSource();
+
+  List<SuitEntity> _suits = [];
+  bool _isLoading = true;
 
   SuitFilter _filter = SuitFilter.all;
   bool _isSearching = false;
   String _query = '';
   final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSuits();
+  }
+
+  Future<void> _loadSuits() async {
+    setState(() => _isLoading = true);
+
+    final suits = await _dataSource.getAllSuits();
+    setState(() {
+      _suits = suits;
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _saveSuit(SuitEntity suit) async {
+    await _dataSource.saveSuit(suit);
+    setState(() {
+      final idx = _suits.indexWhere((s) => s.id == suit.id);
+      if (idx != -1) {
+        _suits[idx] = suit;
+      } else {
+        _suits.add(suit);
+      }
+    });
+  }
+
+  Future<void> _deleteSuit(String id) async {
+    await _dataSource.deleteSuit(id);
+    setState(() => _suits.removeWhere((s) => s.id == id));
+  }
 
   bool get _hasLeasedSuits => _suits.any(
     (s) => s.status == SuitStatus.leased || s.status == SuitStatus.overdue,
@@ -120,9 +93,7 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
     return result.toList();
   }
 
-  void _openSearch() {
-    setState(() => _isSearching = true);
-  }
+  void _openSearch() => setState(() => _isSearching = true);
 
   void _closeSearch() {
     _searchController.clear();
@@ -130,6 +101,22 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
       _isSearching = false;
       _query = '';
     });
+  }
+
+  void _openAddSuit() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => AddEditSuitScreen(onSave: _saveSuit)),
+    );
+  }
+
+  void _openSuitDetail(SuitEntity suit) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SuitDetailScreen(suit: suit, onUpdate: _saveSuit),
+      ),
+    );
   }
 
   @override
@@ -140,6 +127,13 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: AppColors.bgMain,
+        body: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+      );
+    }
+
     final bool isEmpty = _suits.isEmpty;
     final bool noResults = !isEmpty && _filteredSuits.isEmpty;
 
@@ -157,11 +151,11 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 12),
-                _buildTopBar(),
+                _buildTopBar(isEmpty),
                 if (!isEmpty) ...[
                   const SizedBox(height: 20),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 35),
                     child: SuitsTabBar(
                       selected: _filter,
                       leasedEnabled: _hasLeasedSuits,
@@ -184,24 +178,7 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
                                   final suit = _filteredSuits[index];
                                   return SuitCard(
                                     suit: suit,
-                                    onTap: () async {
-                                      await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => SuitDetailScreen(
-                                            suit: suit,
-                                            onUpdate: (updatedSuit) {
-  setState(() {
-    final idx = _suits.indexWhere((s) => s.id == updatedSuit.id);
-    if (idx != -1) {
-      _suits[idx] = updatedSuit;
-    }
-  });
-},
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                    onTap: () => _openSuitDetail(suit),
                                   );
                                 },
                               )),
@@ -219,10 +196,10 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
     );
   }
 
-  Widget _buildTopBar() {
+  Widget _buildTopBar(bool isEmpty){
     if (_isSearching) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 35),
         child: Row(
           children: [
             Expanded(
@@ -230,7 +207,7 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
                 height: 44,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: AppColors.navy,
+                  color: AppColors.bmain,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -279,6 +256,7 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (_searchEnabled) ...[
             GestureDetector(
@@ -287,7 +265,7 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.navy,
+                  color: AppColors.bmain,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.search, color: Colors.white),
@@ -295,32 +273,31 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
             ),
             const SizedBox(width: 10),
           ],
-          Expanded(
-            child: Container(
-              height: 44,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: AppColors.navy,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text('Suits', style: AppTextStyles.suits),
+          Container(
+            height: 52,
+            width: 191,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.bmain,
+              borderRadius: BorderRadius.circular(9),
             ),
+            child: const Text('Suits', style: AppTextStyles.suits),
           ),
-          const SizedBox(width: 10),
-          GestureDetector(
-            onTap: () {
-              // TODO: Navigator.push -> Add / Edit suit (1.3)
-            },
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AppColors.accent,
-                borderRadius: BorderRadius.circular(12),
+          if (!isEmpty) ...[
+            const SizedBox(width: 10),
+            GestureDetector(
+              onTap: _openAddSuit,
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.accent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.add, color: Colors.white),
               ),
-              child: const Icon(Icons.add, color: Colors.white),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -329,39 +306,37 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
   Widget _buildEmptyState() {
     return Center(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20),
-        padding: const EdgeInsets.all(24),
+        width: 311,
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.navy.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(20),
+          color: AppColors.bmain,
+          borderRadius: BorderRadius.circular(9),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('No suit', style: AppTextStyles.headline28),
+            const Text('No suit', style: AppTextStyles.headline52),
             const SizedBox(height: 8),
             Text(
               'Add your first costume for easy\nstorage of them',
               textAlign: TextAlign.center,
-              style: AppTextStyles.caption12.copyWith(color: Colors.white70),
+              style: AppTextStyles.body16.copyWith(color: Color(0xff454954)),
             ),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
-              height: 48,
+              height: 52,
               child: ElevatedButton(
-                onPressed: () {
-                  // TODO: Navigator.push -> Add / Edit suit (1.3)
-                },
+                onPressed: _openAddSuit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.accent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   'Create new suit',
-                  style: TextStyle(color: Colors.white),
+                  style: AppTextStyles.body16.copyWith(color: Colors.white),
                 ),
               ),
             ),
@@ -377,7 +352,7 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: AppColors.navy.withOpacity(0.9),
+          color: AppColors.bmain.withOpacity(0.9),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
