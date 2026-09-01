@@ -54,7 +54,9 @@ class _AddEditClientScreenState extends State<AddEditClientScreen> {
   Future<void> _loadRecords() async {
     final all = await _rentalDataSource.getAllRecords();
     setState(() {
-      _clientRecords = all.where((r) => r.clientId == widget.existingClient!.id).toList();
+      _clientRecords = all
+          .where((r) => r.clientId == widget.existingClient!.id)
+          .toList();
     });
   }
 
@@ -112,7 +114,8 @@ class _AddEditClientScreenState extends State<AddEditClientScreen> {
     final confirmed = await ConfirmDialog.show(
       context,
       title: 'Delete clients card',
-      message: 'Are you sure you want to remove this client card? This action cannot be canceled.',
+      message:
+          'Are you sure you want to remove this client card? This action cannot be canceled.',
       confirmText: 'Delete',
       isDestructive: true,
     );
@@ -126,7 +129,8 @@ class _AddEditClientScreenState extends State<AddEditClientScreen> {
     final confirmed = await ConfirmDialog.show(
       context,
       title: 'Delete this history card',
-      message: 'Are you sure you want to remove this history card? This action cannot be canceled.',
+      message:
+          'Are you sure you want to remove this history card? This action cannot be canceled.',
       confirmText: 'Delete',
       isDestructive: true,
     );
@@ -140,7 +144,9 @@ class _AddEditClientScreenState extends State<AddEditClientScreen> {
     if (!_isFormValid) return;
 
     final client = ClientEntity(
-      id: widget.existingClient?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      id:
+          widget.existingClient?.id ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
       name: _nameCtrl.text.trim(),
       phone: _phoneCtrl.text.trim(),
       photoPath: _imagePath,
@@ -154,112 +160,129 @@ class _AddEditClientScreenState extends State<AddEditClientScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgMain,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 12),
-            _buildTopBar(),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                children: [
-                  RequiredFieldLabel(
-                    text: 'Enter the name of the clients',
-                    isFilled: _nameCtrl.text.trim().isNotEmpty,
-                  ),
-                  const SizedBox(height: 6),
-                  SuitTextField(
-                    controller: _nameCtrl,
-                    hint: 'Name clients',
-                    onChanged: () {
-                      _markChanged();
-                      if (_isEditMode) _save();
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  RequiredFieldLabel(
-                    text: 'Add a photo clients (optionals)',
-                    isFilled: _imagePath != null,
-                  ),
-                  const SizedBox(height: 6),
-                  ClientPhotoPicker(
-                    imagePath: _imagePath,
-                    cachedBytes: _decodedBytes,
-                    onPick: () async {
-                      await _pickImage();
-                      if (_isEditMode) await _save();
-                    },
-                    onDelete: () {
-                      _deleteImage();
-                      if (_isEditMode) _save();
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  RequiredFieldLabel(
-                    text: "Enter customer's phone number",
-                    isFilled: _phoneCtrl.text.trim().isNotEmpty,
-                  ),
-                  const SizedBox(height: 6),
-                  SuitTextField(
-                    controller: _phoneCtrl,
-                    hint: 'Enter phone number',
-                    keyboardType: TextInputType.phone,
-                    onChanged: () {
-                      _markChanged();
-                      if (_isEditMode) _save();
-                    },
-                  ),
-                  if (_isEditMode) ...[
-                    const SizedBox(height: 20),
-                    const Text("The last day a user rented a suit", style: AppTextStyles.caption12),
-                    const SizedBox(height: 8),
-                    ..._clientRecords.map(
-                      (record) => SuitHistoryMiniCard(
-                        record: record,
-                        onDelete: () => _onDeleteRecord(record),
+      body: Stack(
+        children: [
+          Image.asset(
+            'assets/images/fon2.png',
+            fit: BoxFit.cover,
+            height: double.infinity,
+            width: double.infinity,
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                _buildTopBar(),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 35),
+                    children: [
+                      RequiredFieldLabel(
+                        text: 'Enter the name of the clients',
+                        isFilled: _nameCtrl.text.trim().isNotEmpty,
                       ),
-                    ),
-                  ],
-                  const SizedBox(height: 20),
-                ],
-              ),
+                      const SizedBox(height: 6),
+                      SuitTextField(
+                        controller: _nameCtrl,
+                        hint: 'Name clients',
+                        onChanged: () {
+                          _markChanged();
+                          if (_isEditMode) _save();
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      RequiredFieldLabel(
+                        text: 'Add a photo clients (optionals)',
+                        isFilled: _imagePath != null,
+                      ),
+                      const SizedBox(height: 6),
+                      ClientPhotoPicker(
+                        imagePath: _imagePath,
+                        cachedBytes: _decodedBytes,
+                        onPick: () async {
+                          await _pickImage();
+                          if (_isEditMode) await _save();
+                        },
+                        onDelete: () {
+                          _deleteImage();
+                          if (_isEditMode) _save();
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      RequiredFieldLabel(
+                        text: "Enter customer's phone number",
+                        isFilled: _phoneCtrl.text.trim().isNotEmpty,
+                      ),
+                      const SizedBox(height: 6),
+                      SuitTextField(
+                        controller: _phoneCtrl,
+                        hint: 'Enter phone number',
+                        keyboardType: TextInputType.phone,
+                        onChanged: () {
+                          _markChanged();
+                          if (_isEditMode) _save();
+                        },
+                      ),
+                      if (_isEditMode) ...[
+                        const SizedBox(height: 20),
+                        const Text(
+                          "The last day a user rented a suit",
+                          style: AppTextStyles.caption12,
+                        ),
+                        const SizedBox(height: 8),
+                        ..._clientRecords.map(
+                          (record) => SuitHistoryMiniCard(
+                            record: record,
+                            onDelete: () => _onDeleteRecord(record),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildTopBar() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 35),
       child: Row(
         children: [
           GestureDetector(
             onTap: _onBackPressed,
             child: Container(
-              width: 44,
-              height: 44,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
-                color: AppColors.navy,
-                borderRadius: BorderRadius.circular(12),
+                color: AppColors.bmain,
+                borderRadius: BorderRadius.circular(9),
               ),
-              child: const Icon(Icons.arrow_back, color: Colors.white),
+              child: Image.asset(
+                'assets/images/around.png',
+                width: 30,
+                height: 30,
+              ),
             ),
           ),
           const SizedBox(width: 10),
           Expanded(
             child: Container(
-              height: 44,
+              height: 52,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: AppColors.navy,
-                borderRadius: BorderRadius.circular(12),
+                color: AppColors.bmain,
+                borderRadius: BorderRadius.circular(9),
               ),
               child: Text(
                 _isEditMode ? 'Edit clients' : 'Create clients',
-                style: AppTextStyles.suits,
+                style: AppTextStyles.headline28,
               ),
             ),
           ),
@@ -268,26 +291,36 @@ class _AddEditClientScreenState extends State<AddEditClientScreen> {
             GestureDetector(
               onTap: _onDeleteClient,
               child: Container(
-                width: 44,
-                height: 44,
+                width: 52,
+                height: 52,
                 decoration: BoxDecoration(
                   color: AppColors.wine,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(9),
                 ),
-                child: const Icon(Icons.delete_outline, color: Colors.white),
+                child: Image.asset(
+                  'assets/images/delete.png',
+                  width: 30,
+                  height: 30,
+                ),
               ),
             )
           else
             GestureDetector(
               onTap: _isFormValid ? _save : null,
               child: Container(
-                width: 44,
-                height: 44,
+                width: 52,
+                height: 52,
                 decoration: BoxDecoration(
-                  color: _isFormValid ? AppColors.accent : AppColors.accent.withOpacity(0.35),
-                  borderRadius: BorderRadius.circular(12),
+                  color: _isFormValid
+                      ? AppColors.accent
+                      : AppColors.accent.withValues(alpha: 0.35),
+                  borderRadius: BorderRadius.circular(9),
                 ),
-                child: const Icon(Icons.add, color: Colors.white),
+                child: Image.asset(
+                  'assets/images/plus.png',
+                  width: 30,
+                  height: 30,
+                ),
               ),
             ),
         ],

@@ -159,7 +159,7 @@ class _LeaseDatePickerDialogState extends State<LeaseDatePickerDialog> {
                       },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.accent,
-                  disabledBackgroundColor: AppColors.accent.withOpacity(0.3),
+                  disabledBackgroundColor: AppColors.accent.withValues(alpha: 0.3),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: const Text('Confirm', style: TextStyle(color: Colors.white)),

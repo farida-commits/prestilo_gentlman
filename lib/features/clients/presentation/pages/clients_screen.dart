@@ -1,4 +1,5 @@
 // features/clients/presentation/pages/clients_screen.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:gentleman/features/suits/domain/entities/client_entity.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -71,144 +72,170 @@ class _ClientsScreenState extends State<ClientsScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.bgMain,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: AppColors.bmain,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.arrow_back, color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Container(
-                      height: 44,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: AppColors.bmain,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        'Your clients',
-                        style: AppTextStyles.suits,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  GestureDetector(
-                    onTap: _openAddClient,
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: AppColors.accent,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.add, color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: isEmpty
-                  ? Center(
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 20),
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: AppColors.bmain,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text(
-                              'No clients',
-                              style: AppTextStyles.headline28,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "You haven't added customers to\nselect them yet, fix that sooner\nrather than later",
-                              textAlign: TextAlign.center,
-                              style: AppTextStyles.caption12.copyWith(
-                                color: Colors.white70,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 48,
-                              child: ElevatedButton(
-                                onPressed: _openAddClient,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.accent,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Create the first one',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ),
-                          ],
+      body: Stack(
+        children: [
+          Image.asset(
+            'assets/images/fon.png',
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 35),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: AppColors.bmain,
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                          child: Image.asset(
+                            'assets/images/around.png',
+                            width: 30,
+                            height: 30,
+                          ),
                         ),
                       ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      itemCount: _clients.length,
-                      itemBuilder: (context, index) {
-                        final client = _clients[index];
-                        return ClientCard(
-                          client: client,
-                          isSelected: _selectedClientId == client.id,
-                          onTap: () =>
-                              setState(() => _selectedClientId = client.id),
-                        );
-                      },
-                    ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-              child: SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: _selectedClientId == null
-                      ? null
-                      : _onSelectPressed,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accent,
-                    disabledBackgroundColor: AppColors.accent.withValues(alpha: 0.4),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Select',
-                    style: TextStyle(color: Colors.white),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Container(
+                          height: 52,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: AppColors.bmain,
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                          child: const Text(
+                            'Your clients',
+                            style: AppTextStyles.headline28,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      GestureDetector(
+                        onTap: _openAddClient,
+                        child: Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: AppColors.accent,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Image.asset(
+                            'assets/images/plus.png',
+                            width: 30,
+                            height: 30,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: isEmpty
+                      ? Center(
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 35),
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: AppColors.bmain,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  'No clients',
+                                  style: AppTextStyles.headline52,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  "You haven't added customers to\nselect them yet, fix that sooner\nrather than later",
+                                  textAlign: TextAlign.center,
+                                  style: AppTextStyles.body16.copyWith(
+                                    color: AppColors.grey,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 52,
+                                  child: ElevatedButton(
+                                    onPressed: _openAddClient,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.accent,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(9),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Create the first one',
+                                      style: AppTextStyles.body16,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          itemCount: _clients.length,
+                          itemBuilder: (context, index) {
+                            final client = _clients[index];
+                            return ClientCard(
+                              client: client,
+                              isSelected: _selectedClientId == client.id,
+                              onTap: () =>
+                                  setState(() => _selectedClientId = client.id),
+                            );
+                          },
+                        ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(35, 8, 35, 16),
+                  child: ClipRRect(
+                    borderRadius: BorderRadiusGeometry.circular(9),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: _selectedClientId == null
+                              ? null
+                              : _onSelectPressed,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.accent,
+                            disabledBackgroundColor: AppColors.accent.withValues(
+                              alpha: 0.2,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(9),
+                            ),
+                          ),
+                          child: const Text(
+                            'Select',
+                            style: AppTextStyles.body16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

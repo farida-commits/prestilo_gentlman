@@ -25,47 +25,53 @@ class ClientPhotoPicker extends StatelessWidget {
       child: InkWell(
         onTap: imagePath == null ? onPick : null,
         borderRadius: BorderRadius.circular(9),
-        child: Container(
-          width: double.infinity,
-          height: 260,
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: AppColors.navy,
-            borderRadius: BorderRadius.circular(9),
-          ),
-          child: imagePath == null
-              ? const Center(
-                  child: Icon(Icons.image_outlined, size: 44, color: Colors.white38),
-                )
-              : Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    cachedBytes != null
-                        ? Image.memory(cachedBytes!, fit: BoxFit.cover, gaplessPlayback: true)
-                        : SuitImageWidget(imagePath: imagePath!),
-                    Positioned(
-                      right: 10,
-                      bottom: 10,
-                      child: GestureDetector(
-                        onTap: onDelete,
-                        child: Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: AppColors.wine,
-                            borderRadius: BorderRadius.circular(9),
-                          ),
-                          child: Image.asset(
-                            'assets/images/delete.png',
-                            width: 20,
-                            height: 20,
-                            color: Colors.red,
+        child: SizedBox(
+          child: Container(
+            width: double.infinity,
+            height: 295,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: AppColors.bmain,
+              borderRadius: BorderRadius.circular(9),
+            ),
+            child: imagePath == null
+                ? Center(
+                    child: Image.asset(
+                      'assets/images/photo.png',
+                      width: 44,
+                      height: 44,
+                    ),
+                  )
+                : Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      cachedBytes != null
+                          ? Image.memory(cachedBytes!, fit: BoxFit.cover, gaplessPlayback: true)
+                          : SuitImageWidget(imagePath: imagePath!),
+                      Positioned(
+                        right: 10,
+                        bottom: 10,
+                        child: GestureDetector(
+                          onTap: onDelete,
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: AppColors.wine,
+                              borderRadius: BorderRadius.circular(9),
+                            ),
+                            child: Image.asset(
+                              'assets/images/delete.png',
+                              width: 20,
+                              height: 20,
+                              color: Colors.red,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+          ),
         ),
       ),
     );

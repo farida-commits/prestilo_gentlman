@@ -25,7 +25,7 @@ class PhotoAccessDialog extends StatelessWidget {
             width: 270,
             height: 269.5,
             decoration: BoxDecoration(
-              color: const Color(0xFFF2F2F2).withOpacity(0.8), // CC = 0.8 alpha
+              color: const Color(0xFFF2F2F2).withValues(alpha: 0.8), // CC = 0.8 alpha
               borderRadius: BorderRadius.circular(14),
             ),
             child: Column(

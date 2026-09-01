@@ -280,7 +280,7 @@ class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 20),
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: AppColors.navy.withOpacity(0.9),
+          color: AppColors.navy.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(

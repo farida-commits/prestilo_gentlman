@@ -85,15 +85,3 @@ class SuitImageWidget extends StatelessWidget {
     );
   }
 }
-
-    // if (imagePath.startsWith('data:image')) {
-    //   final base64Str = imagePath.split(',').last;
-    //   final bytes = base64Decode(base64Str);
-    //   return Image.memory(
-    //     bytes,
-    //     fit: fit,
-    //     width: width,
-    //     height: height,
-    //     gaplessPlayback: true,
-    //   );
-    // }

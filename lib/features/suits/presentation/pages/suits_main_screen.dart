@@ -204,7 +204,8 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
           children: [
             Expanded(
               child: Container(
-                height: 44,
+                height: 52,
+                width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: AppColors.bmain,
@@ -212,7 +213,12 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.search, color: Colors.white54, size: 20),
+                    Image.asset(
+                      'assets/images/search.png', 
+                      color: AppColors.grey,
+                      width: 30,
+                      height: 30,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: TextField(
@@ -223,9 +229,9 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
                           fontFamily: 'Raleway',
                         ),
                         cursorColor: AppColors.accent,
-                        decoration: const InputDecoration(
+                        decoration:  InputDecoration(
                           hintText: 'Search',
-                          hintStyle: TextStyle(color: Colors.white38),
+                          hintStyle: AppTextStyles.caption12.copyWith(color: AppColors.grey),
                           border: InputBorder.none,
                         ),
                         onChanged: (value) => setState(() => _query = value),
@@ -239,13 +245,18 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
             GestureDetector(
               onTap: _closeSearch,
               child: Container(
-                width: 44,
-                height: 44,
+                width: 52,
+                height: 52,
                 decoration: BoxDecoration(
                   color: AppColors.wine,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.close, color: Colors.white),
+                child: Image.asset(
+                  'assets/images/close.png',
+                  color: Colors.white,
+                  width: 30,
+                  height: 30,
+                ),
               ),
             ),
           ],
@@ -320,7 +331,7 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
             Text(
               'Add your first costume for easy\nstorage of them',
               textAlign: TextAlign.center,
-              style: AppTextStyles.body16.copyWith(color: Color(0xff454954)),
+              style: AppTextStyles.body16.copyWith(color: AppColors.grey),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -348,25 +359,32 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
 
   Widget _buildNothingFound() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: AppColors.bmain.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Nothing found', style: AppTextStyles.headline28),
-            const SizedBox(height: 8),
-            Text(
-              'There was no suit to meet your\nrequirements',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.caption12.copyWith(color: Colors.white70),
+      padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 15),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppColors.bmain,
+              borderRadius: BorderRadius.circular(9),
             ),
-          ],
-        ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Nothing found', style: AppTextStyles.headline52),
+                const SizedBox(height: 8),
+                Text(
+                  'There was no suit to meet your\nrequirements',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.body16.copyWith(color: AppColors.grey),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

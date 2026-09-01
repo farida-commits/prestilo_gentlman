@@ -48,7 +48,7 @@ class ConfirmDialog extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
           child: Container(
             width: 270,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
             decoration: BoxDecoration(
               color: const Color(0xFFF2F2F2).withValues(alpha: 0.8), // #F2F2F2CC
               borderRadius: BorderRadius.circular(14),
@@ -62,7 +62,7 @@ class ConfirmDialog extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xff001420),
+                    color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -71,7 +71,8 @@ class ConfirmDialog extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 13,
-                    color: Color(0xff5a6472),
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -92,7 +93,7 @@ class ConfirmDialog extends StatelessWidget {
                     ),
                     Container(
                       width: 1,
-                      height: 44,
+                      height: 49,
                       color: const Color(0x3C3C435C),
                     ),
                     Expanded(

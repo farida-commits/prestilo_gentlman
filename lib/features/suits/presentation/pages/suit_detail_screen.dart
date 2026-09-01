@@ -335,7 +335,7 @@ class _SuitDetailScreenState extends State<SuitDetailScreen> {
           width: double.infinity,
           height: 44,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.08),           
+            color: Colors.white.withValues(alpha: 0.08),           
           borderRadius: BorderRadius.circular(9),
           border: Border.all(color: AppColors.accent, width: 2),
         ),
@@ -349,14 +349,7 @@ class _SuitDetailScreenState extends State<SuitDetailScreen> {
           child: Text(
             text,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontFamily: 'Raleway',
-              fontWeight: FontWeight.w500,
-              fontSize: 16,
-              height: 1.2,
-              letterSpacing: 0.32,
-              color: Colors.white,
-            ),
+            style: AppTextStyles.body16,
           ),
         ),
       ),

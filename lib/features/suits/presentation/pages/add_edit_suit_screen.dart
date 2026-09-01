@@ -189,25 +189,27 @@ class _AddEditSuitScreenState extends State<AddEditSuitScreen> {
   }
 
   void _onSubmit() {
-  if (!_isFormValid) return;
+    if (!_isFormValid) return;
 
-  final suit = SuitEntity(
-    id: widget.existingSuit?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-    name: _nameCtrl.text.trim(),
-    brand: _brandCtrl.text.trim(),
-    price: _priceCtrl.text.trim(),
-    deposit: _depositCtrl.text.trim(),
-    fabric: _fabricCtrl.text.trim(),
-    size: _sizeCtrl.text.trim(),
-    description: _descriptionCtrl.text.trim(),
-    imagePath: _imagePath ?? 'assets/images/placeholder.png',
-    status: widget.existingSuit?.status ?? SuitStatus.inStock,
-    dateLabel: widget.existingSuit?.dateLabel,
-  );
+    final suit = SuitEntity(
+      id:
+          widget.existingSuit?.id ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
+      name: _nameCtrl.text.trim(),
+      brand: _brandCtrl.text.trim(),
+      price: _priceCtrl.text.trim(),
+      deposit: _depositCtrl.text.trim(),
+      fabric: _fabricCtrl.text.trim(),
+      size: _sizeCtrl.text.trim(),
+      description: _descriptionCtrl.text.trim(),
+      imagePath: _imagePath ?? 'assets/images/placeholder.png',
+      status: widget.existingSuit?.status ?? SuitStatus.inStock,
+      dateLabel: widget.existingSuit?.dateLabel,
+    );
 
-  widget.onSave(suit);
-  Navigator.pop(context);
-}
+    widget.onSave(suit);
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -335,7 +337,7 @@ class _AddEditSuitScreenState extends State<AddEditSuitScreen> {
                           const SizedBox(height: 24),
                           SizedBox(
                             width: double.infinity,
-                            height: 48,
+                            height: 52,
                             child: ElevatedButton(
                               onPressed: _onDeleteSuit,
                               style: ElevatedButton.styleFrom(
@@ -344,9 +346,9 @@ class _AddEditSuitScreenState extends State<AddEditSuitScreen> {
                                   borderRadius: BorderRadius.circular(9),
                                 ),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Delete this suit',
-                                style: TextStyle(color: Colors.white),
+                                style: AppTextStyles.body16.copyWith(color: Colors.white,),
                               ),
                             ),
                           ),
@@ -400,8 +402,8 @@ class _AddEditSuitScreenState extends State<AddEditSuitScreen> {
               ),
               child: Image.asset(
                 'assets/images/around.png',
-                width: 32,
-                height: 32,
+                width: 30,
+                height: 30,
               ),
             ),
           ),
@@ -434,10 +436,10 @@ class _AddEditSuitScreenState extends State<AddEditSuitScreen> {
                 borderRadius: BorderRadius.circular(9),
               ),
               child: Image.asset(
-                width: 32,
-                height: 32,
+                width: 30,
+                height: 30,
                 _isEditMode
-                    ? 'assets/images/close.png'
+                    ? 'assets/images/save.png'
                     : 'assets/images/plus.png',
                 color: Colors.white,
               ),
