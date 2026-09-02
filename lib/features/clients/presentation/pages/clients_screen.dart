@@ -23,6 +23,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
   List<ClientEntity> _clients = [];
   bool _isLoading = true;
   String? _selectedClientId;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -46,18 +47,26 @@ class _ClientsScreenState extends State<ClientsScreen> {
     if (result != null) _loadClients();
   }
 
-  Future<void> _onSelectPressed() async {
-    if (_selectedClientId == null) return;
+   void _onClientTap(String clientId) {
+    setState(() {
+      if (_selectedClientId == clientId) {
+        // ошол эле клиентти кайра баскандай — тандоону жоготпойбуз, календарь ачык калат
+        return;
+      }
+      _selectedClientId = clientId;
+      _selectedDate = null; // жаңы клиент — дата кайра тандалышы керек
+    });
+  }
+
+  void _onSelectPressed() {
+    if (_selectedClientId == null || _selectedDate == null) return;
     final client = _clients.firstWhere((c) => c.id == _selectedClientId);
-
-    final result = await showDialog<LeaseResult>(
-      context: context,
-      builder: (_) => LeaseDatePickerDialog(client: client),
+    final result = LeaseResult(
+      client: client,
+      startDate: DateTime.now(),
+      endDate: _selectedDate!,
     );
-
-    if (result != null && mounted) {
-      Navigator.pop(context, result);
-    }
+    Navigator.pop(context, result);
   }
 
   @override
@@ -148,7 +157,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
                             padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
                               color: AppColors.bmain,
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(9),
                             ),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
@@ -192,47 +201,68 @@ class _ClientsScreenState extends State<ClientsScreen> {
                           itemCount: _clients.length,
                           itemBuilder: (context, index) {
                             final client = _clients[index];
+                            // final bool isSelected =
+                            //     _selectedClientId == client.id;
                             return ClientCard(
                               client: client,
                               isSelected: _selectedClientId == client.id,
-                              onTap: () =>
-                                  setState(() => _selectedClientId = client.id),
+                               onTap: () => _onClientTap(client.id),
                             );
                           },
                         ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(35, 8, 35, 16),
-                  child: ClipRRect(
-                    borderRadius: BorderRadiusGeometry.circular(9),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: _selectedClientId == null
-                              ? null
-                              : _onSelectPressed,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.accent,
-                            disabledBackgroundColor: AppColors.accent.withValues(
-                              alpha: 0.2,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(9),
-                            ),
-                          ),
-                          child: const Text(
-                            'Select',
-                            style: AppTextStyles.body16,
-                          ),
-                        ),
-                      ),
+                SizedBox(height: 64,)
+              ],
+            ),
+          ),
+          if (_selectedClientId != null)
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () {},
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.4),
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 25),
+                    child: LeaseDatePickerCalendar(
+                      selectedDate: _selectedDate, 
+                      onDateSelected: (date) => setState(() => _selectedDate = date),
                     ),
                   ),
                 ),
-              ],
+              ),
+            ),
+          ),
+          Positioned(
+            left: 35,
+            right: 35,
+            bottom: 16,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(9),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: (_selectedClientId == null || _selectedDate == null)
+                      ? null
+                      : _onSelectPressed,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.accent,
+                        disabledBackgroundColor: AppColors.accent.withValues(alpha: 0.2),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(9),
+                        ),
+                      ),
+                      child: const Text(
+                        'Select',
+                        style: AppTextStyles.body16,
+                      ),
+                  ),
+                ),
+              ),
             ),
           ),
         ],

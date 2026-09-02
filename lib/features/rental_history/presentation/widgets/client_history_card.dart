@@ -33,23 +33,27 @@ class ClientHistoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      height: 130,
+      height: 120,
       decoration: BoxDecoration(
         color: AppColors.navy,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(9),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ClipRRect(
-            borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
+            borderRadius: const BorderRadius.horizontal(left: Radius.circular(9)),
             child: stats.clientPhotoPath != null
-                ? SuitImageWidget(imagePath: stats.clientPhotoPath!, width: 110, height: 130)
+                ? SuitImageWidget(imagePath: stats.clientPhotoPath!, width: 120, height: 120)
                 : Container(
-                    width: 110,
-                    height: 130,
+                    width: 120,
+                    height: 120,
                     color: AppColors.bmain,
-                    child: const Icon(Icons.person, color: Colors.white38, size: 32),
+                    child: Image.asset(
+                      'assets/images/photo.png',
+                      width: 44,
+                      height: 44,
+                    )
                   ),
           ),
           Expanded(
@@ -84,7 +88,7 @@ class ClientHistoryCard extends StatelessWidget {
           style: AppTextStyles.caption12,
           children: [
             TextSpan(text: '\u2022 $label '),
-            TextSpan(text: value, style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+            TextSpan(text: value, style: AppTextStyles.captionBold12),
           ],
         ),
       ),

@@ -1,22 +1,25 @@
 // features/clients/presentation/widgets/lease_date_picker_dialog.dart
 import 'package:flutter/material.dart';
+import 'package:gentleman/core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_colors.dart';
-import 'package:gentleman/features/suits/domain/entities/client_entity.dart';
-import 'lease_result.dart';
 
-class LeaseDatePickerDialog extends StatefulWidget {
-  final ClientEntity client;
+class LeaseDatePickerCalendar extends StatefulWidget {
+  final DateTime? selectedDate;
+  final ValueChanged<DateTime> onDateSelected;
 
-  const LeaseDatePickerDialog({super.key, required this.client});
+  const LeaseDatePickerCalendar({
+    super.key,
+    required this.selectedDate,
+    required this.onDateSelected,
+  });
 
   @override
-  State<LeaseDatePickerDialog> createState() => _LeaseDatePickerDialogState();
+  State<LeaseDatePickerCalendar> createState() => _LeaseDatePickerCalendarState();
 }
 
-class _LeaseDatePickerDialogState extends State<LeaseDatePickerDialog> {
+class _LeaseDatePickerCalendarState extends State<LeaseDatePickerCalendar> {
   late DateTime _visibleMonth;
   late DateTime _today;
-  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -35,9 +38,10 @@ class _LeaseDatePickerDialogState extends State<LeaseDatePickerDialog> {
       a.year == b.year && a.month == b.month && a.day == b.day;
 
   bool _isBetween(DateTime day) {
-    if (_selectedDate == null) return false;
+    final sel = widget.selectedDate;
+    if (sel == null) return false;
     final start = DateTime(_today.year, _today.month, _today.day);
-    final end = DateTime(_selectedDate!.year, _selectedDate!.month, _selectedDate!.day);
+    final end = DateTime(sel.year, sel.month, sel.day);
     return day.isAfter(start) && day.isBefore(end);
   }
 
@@ -50,123 +54,107 @@ class _LeaseDatePickerDialogState extends State<LeaseDatePickerDialog> {
       'July', 'August', 'September', 'October', 'November', 'December',
     ];
 
-    return Dialog(
-      backgroundColor: AppColors.navy,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 25),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${monthNames[_visibleMonth.month - 1]} ${_visibleMonth.year}',
-                  style: const TextStyle(color: Colors.white, fontFamily: 'Raleway', fontSize: 16),
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => _changeMonth(-1),
-                      icon: const Icon(Icons.chevron_left, color: AppColors.accent),
-                    ),
-                    IconButton(
-                      onPressed: () => _changeMonth(1),
-                      icon: const Icon(Icons.chevron_right, color: AppColors.accent),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const Divider(color: Colors.white24),
-            Row(
-              children: ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
-                  .map((d) => Expanded(
-                        child: Center(
-                          child: Text(d, style: const TextStyle(color: Colors.white38, fontSize: 12)),
-                        ),
-                      ))
-                  .toList(),
-            ),
-            const SizedBox(height: 8),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 7,
-                childAspectRatio: 1,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.bmain,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF000000).withValues(alpha: 0.06),
+            offset: const Offset(0, 0),
+            blurRadius: 100,
+            spreadRadius: 0, 
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${monthNames[_visibleMonth.month - 1]} ${_visibleMonth.year}',
+                style: AppTextStyles.body16.copyWith(color: Colors.white),
               ),
-              itemCount: daysInMonth + firstWeekday,
-              itemBuilder: (context, index) {
-                if (index < firstWeekday) return const SizedBox();
-                final day = index - firstWeekday + 1;
-                final date = DateTime(_visibleMonth.year, _visibleMonth.month, day);
-                final bool isToday = _isSameDay(date, _today);
-                final bool isSelected = _selectedDate != null && _isSameDay(date, _selectedDate!);
-                final bool isBetween = _isBetween(date);
-
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedDate = date),
-                  child: Container(
-                    margin: const EdgeInsets.all(3),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppColors.accent
-                          : (isToday ? Colors.white24 : Colors.transparent),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Text('$day', style: const TextStyle(color: Colors.white, fontSize: 14)),
-                        if (isBetween)
-                          Positioned(
-                            bottom: 4,
-                            child: Container(
-                              width: 4,
-                              height: 4,
-                              decoration: const BoxDecoration(
-                                color: AppColors.accent,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () => _changeMonth(-1),
+                    icon: const Icon(Icons.chevron_left,size: 30, color: AppColors.accent),
                   ),
-                );
-              },
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: _selectedDate == null
-                    ? null
-                    : () {
-                        Navigator.pop(
-                          context,
-                          LeaseResult(
-                            client: widget.client,
-                            startDate: _today,
-                            endDate: _selectedDate!,
-                          ),
-                        );
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.accent,
-                  disabledBackgroundColor: AppColors.accent.withValues(alpha: 0.3),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: const Text('Confirm', style: TextStyle(color: Colors.white)),
+                  IconButton(
+                    onPressed: () => _changeMonth(1),
+                    icon: const Icon(Icons.chevron_right, size: 30, color: AppColors.accent),
+                  ),
+                ],
               ),
+            ],
+          ),
+          const Divider(color: Colors.white24),
+          Row(
+            children: ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
+                .map((d) => Expanded(
+                      child: Center(
+                        child: Text(d, style: AppTextStyles.body16.copyWith(color: AppColors.grey)),
+                      ),
+                    ))
+                .toList(),
+          ),
+          const SizedBox(height: 8),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7,
+              childAspectRatio: 1,
             ),
-          ],
-        ),
+            itemCount: daysInMonth + firstWeekday,
+            itemBuilder: (context, index) {
+              if (index < firstWeekday) return const SizedBox();
+              final day = index - firstWeekday + 1;
+              final date = DateTime(_visibleMonth.year, _visibleMonth.month, day);
+              final bool isToday = _isSameDay(date, _today);
+              final bool isSelected =
+                  widget.selectedDate != null && _isSameDay(date, widget.selectedDate!);
+              final bool isBetween = _isBetween(date);
+
+              return GestureDetector(
+                onTap: () => widget.onDateSelected(date),
+                child: Container(
+                  margin: const EdgeInsets.all(3),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.accent
+                        : (isToday ? Color(0xff404859) : Colors.transparent),
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('$day', style: AppTextStyles.body16.copyWith(color: Colors.white)),
+                      SizedBox(height: 4,),
+                        SizedBox(
+                          width: 5,
+                          height: 5,
+                          child: isBetween
+                          ? const DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: AppColors.accent,
+                              shape: BoxShape.circle,
+                            ),
+                          )
+                          : null,
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

@@ -1,5 +1,6 @@
 // features/suits/presentation/widgets/suits_tab_bar.dart
 import 'package:flutter/material.dart';
+import 'package:gentleman/core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_colors.dart';
 
 enum SuitFilter { all, inStock, leased }
@@ -40,27 +41,20 @@ class SuitsTabBar extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(
-              fontFamily: 'Raleway',
-              fontSize: 21,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.title21.copyWith(
               color: !enabled
                   ? Colors.white
                   : (isActive ? AppColors.accent : Colors.white),
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 1),
           if (isActive)
             Builder(
               builder: (context) {
                 final textPainter = TextPainter(
                   text: TextSpan(
                     text: label,
-                    style: const TextStyle(
-                      fontFamily: 'Raleway',
-                      fontSize: 21,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: AppTextStyles.title21
                   ),
                   textDirection: TextDirection.ltr,
                 )..layout();

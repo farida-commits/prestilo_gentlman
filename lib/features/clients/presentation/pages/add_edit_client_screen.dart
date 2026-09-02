@@ -200,6 +200,7 @@ class _AddEditClientScreenState extends State<AddEditClientScreen> {
                       ClientPhotoPicker(
                         imagePath: _imagePath,
                         cachedBytes: _decodedBytes,
+                        showDelete: _isEditMode,
                         onPick: () async {
                           await _pickImage();
                           if (_isEditMode) await _save();
@@ -218,7 +219,7 @@ class _AddEditClientScreenState extends State<AddEditClientScreen> {
                       SuitTextField(
                         controller: _phoneCtrl,
                         hint: 'Enter phone number',
-                        keyboardType: TextInputType.phone,
+                        keyboardType: TextInputType.number,
                         onChanged: () {
                           _markChanged();
                           if (_isEditMode) _save();

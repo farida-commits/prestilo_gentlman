@@ -9,6 +9,7 @@ class ClientPhotoPicker extends StatelessWidget {
   final Uint8List? cachedBytes;
   final VoidCallback onPick;
   final VoidCallback onDelete;
+  final bool showDelete; 
 
   const ClientPhotoPicker({
     super.key,
@@ -16,6 +17,7 @@ class ClientPhotoPicker extends StatelessWidget {
     this.cachedBytes,
     required this.onPick,
     required this.onDelete,
+    this.showDelete = true, 
   });
 
   @override
@@ -48,23 +50,23 @@ class ClientPhotoPicker extends StatelessWidget {
                       cachedBytes != null
                           ? Image.memory(cachedBytes!, fit: BoxFit.cover, gaplessPlayback: true)
                           : SuitImageWidget(imagePath: imagePath!),
+                          if (showDelete)
                       Positioned(
                         right: 10,
                         bottom: 10,
                         child: GestureDetector(
                           onTap: onDelete,
                           child: Container(
-                            width: 36,
-                            height: 36,
+                            width: 44,
+                            height: 44,
                             decoration: BoxDecoration(
                               color: AppColors.wine,
                               borderRadius: BorderRadius.circular(9),
                             ),
                             child: Image.asset(
                               'assets/images/delete.png',
-                              width: 20,
-                              height: 20,
-                              color: Colors.red,
+                              width: 32,
+                              height: 32,
                             ),
                           ),
                         ),

@@ -1,5 +1,6 @@
 // features/suits/presentation/pages/suits_main_screen.dart — толук алмаштыр
 import 'package:flutter/material.dart';
+import 'package:gentleman/features/rental_history/presentation/pages/rental_history_main_screen.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../data/datasources/suit_local_datasource.dart';
@@ -186,7 +187,28 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
                 if (!_isSearching)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16, top: 8),
-                    child: SuitsBottomNav(currentIndex: 0, onTap: (_) {}),
+                    child: SuitsBottomNav(
+                      currentIndex: 0,
+                      onTap: (index) {
+                        if (index == 0) return;
+                        switch (index) {
+                          case 1:
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const RentalHistoryMainScreen(),
+                              ),
+                            );
+                            break;
+                          case 2:
+                            // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const StatisticsScreen()));
+                            break;
+                          case 3:
+                            // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+                            break;
+                        }
+                      },
+                    ),
                   ),
               ],
             ),
@@ -196,7 +218,7 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
     );
   }
 
-  Widget _buildTopBar(bool isEmpty){
+  Widget _buildTopBar(bool isEmpty) {
     if (_isSearching) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 35),
@@ -214,7 +236,7 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
                 child: Row(
                   children: [
                     Image.asset(
-                      'assets/images/search.png', 
+                      'assets/images/search.png',
                       color: AppColors.grey,
                       width: 30,
                       height: 30,
@@ -229,9 +251,11 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
                           fontFamily: 'Raleway',
                         ),
                         cursorColor: AppColors.accent,
-                        decoration:  InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Search',
-                          hintStyle: AppTextStyles.caption12.copyWith(color: AppColors.grey),
+                          hintStyle: AppTextStyles.caption12.copyWith(
+                            color: AppColors.grey,
+                          ),
                           border: InputBorder.none,
                         ),
                         onChanged: (value) => setState(() => _query = value),

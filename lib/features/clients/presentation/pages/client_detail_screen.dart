@@ -88,25 +88,29 @@ class _ClientDetailScreenState extends State<ClientDetailScreen> {
           children: [
             const SizedBox(height: 12),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 35),
               child: Row(
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
-                      width: 44,
-                      height: 44,
+                      width: 52,
+                      height: 52,
                       decoration: BoxDecoration(
-                        color: AppColors.navy,
-                        borderRadius: BorderRadius.circular(12),
+                        color: AppColors.bmain,
+                        borderRadius: BorderRadius.circular(9),
                       ),
-                      child: const Icon(Icons.arrow_back, color: Colors.white),
+                      child: Image.asset(
+                        'assets/images/around.png',
+                        width: 30,
+                        height: 30,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Container(
-                      height: 44,
+                      height: 52,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: AppColors.navy,

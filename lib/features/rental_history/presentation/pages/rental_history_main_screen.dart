@@ -1,5 +1,6 @@
 // features/rental_history/presentation/pages/rental_history_main_screen.dart
 import 'package:flutter/material.dart';
+import 'package:gentleman/features/suits/presentation/pages/suits_main_screen.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../suits/data/datasources/suit_local_datasource.dart';
@@ -18,7 +19,8 @@ class RentalHistoryMainScreen extends StatefulWidget {
   const RentalHistoryMainScreen({super.key});
 
   @override
-  State<RentalHistoryMainScreen> createState() => _RentalHistoryMainScreenState();
+  State<RentalHistoryMainScreen> createState() =>
+      _RentalHistoryMainScreenState();
 }
 
 class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
@@ -116,7 +118,9 @@ class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
                 Text(
                   'Add your first costume for easy\nstorage of them',
                   textAlign: TextAlign.center,
-                  style: AppTextStyles.caption12.copyWith(color: Colors.white70),
+                  style: AppTextStyles.caption12.copyWith(
+                    color: Colors.white70,
+                  ),
                 ),
               ],
             ),
@@ -167,33 +171,40 @@ class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
               children: [
                 const SizedBox(height: 12),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 35),
                   child: Row(
                     children: [
                       if (!isEmpty) ...[
                         GestureDetector(
                           onTap: _openClientsList,
                           child: Container(
-                            width: 44,
-                            height: 44,
+                            width: 52,
+                            height: 52,
                             decoration: BoxDecoration(
-                              color: AppColors.navy,
-                              borderRadius: BorderRadius.circular(12),
+                              color: AppColors.bmain,
+                              borderRadius: BorderRadius.circular(9),
                             ),
-                            child: const Icon(Icons.person_outline, color: Colors.white),
+                            child: Image.asset(
+                              'assets/images/person.png',
+                              width: 30,
+                              height: 30,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 10),
                       ],
                       Expanded(
                         child: Container(
-                          height: 44,
+                          height: 52,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: AppColors.navy,
-                            borderRadius: BorderRadius.circular(12),
+                            color: AppColors.bmain,
+                            borderRadius: BorderRadius.circular(9),
                           ),
-                          child: const Text('Rental history', style: AppTextStyles.suits),
+                          child: const Text(
+                            'Rental history',
+                            style: AppTextStyles.headline28,
+                          ),
                         ),
                       ),
                       if (!isEmpty) ...[
@@ -201,13 +212,17 @@ class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
                         GestureDetector(
                           onTap: _onCreateRental,
                           child: Container(
-                            width: 44,
-                            height: 44,
+                            width: 52,
+                            height: 52,
                             decoration: BoxDecoration(
                               color: AppColors.accent,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Icon(Icons.add, color: Colors.white),
+                            child: Image.asset(
+                              'assets/images/plus.png',
+                              width: 30,
+                              height: 30,
+                            ),
                           ),
                         ),
                       ],
@@ -217,8 +232,9 @@ class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
                 if (!isEmpty) ...[
                   const SizedBox(height: 20),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 35),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _tabButton('By Suits', HistoryTab.bySuits),
                         const SizedBox(width: 20),
@@ -232,15 +248,40 @@ class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
                   child: isEmpty
                       ? _buildEmptyState()
                       : ListView(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.symmetric(horizontal: 35),
                           children: _tab == HistoryTab.bySuits
-                              ? _suitStats.map((s) => SuitHistoryCard(stats: s)).toList()
-                              : _clientStats.map((c) => ClientHistoryCard(stats: c)).toList(),
+                              ? _suitStats
+                                    .map((s) => SuitHistoryCard(stats: s))
+                                    .toList()
+                              : _clientStats
+                                    .map((c) => ClientHistoryCard(stats: c))
+                                    .toList(),
                         ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16, top: 8),
-                  child: SuitsBottomNav(currentIndex: 1, onTap: (_) {}),
+                  child: SuitsBottomNav(
+                    currentIndex: 1,
+                    onTap: (index) {
+                      if (index == 1) return;
+                      switch (index) {
+                        case 0:
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SuitsMainScreen(),
+                            ),
+                          );
+                          break;
+                        case 2:
+                          // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const StatisticsScreen()));
+                          break;
+                        case 3:
+                          // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+                          break;
+                      }
+                    },
+                  ),
                 ),
               ],
             ),
@@ -254,22 +295,36 @@ class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
     final bool isActive = _tab == value;
     return GestureDetector(
       onTap: () => setState(() => _tab = value),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'Raleway',
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: isActive ? AppColors.accent : Colors.white,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: AppTextStyles.title21.copyWith(
+                color: isActive ? AppColors.accent : Colors.white,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          if (isActive)
-            Container(height: 2, width: 20, color: AppColors.accent),
-        ],
+            const SizedBox(height: 1),
+            if (isActive)
+            Builder(
+              builder: (context) {
+                final textPainter = TextPainter(
+                  text: TextSpan(
+                    text: label,
+                    style: AppTextStyles.title21
+                  ),
+                  textDirection: TextDirection.ltr,
+                )..layout();
+                return Container(
+                  height: 2,
+                  width: textPainter.width,
+                  color: AppColors.accent,
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -277,33 +332,38 @@ class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
   Widget _buildEmptyState() {
     return Center(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20),
+        margin: const EdgeInsets.symmetric(horizontal: 35),
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: AppColors.navy.withValues(alpha: 0.9),
-          borderRadius: BorderRadius.circular(20),
+          color: AppColors.bmain,
+          borderRadius: BorderRadius.circular(9),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('No History', style: AppTextStyles.headline28),
+            const Text('No History', style: AppTextStyles.headline52),
             const SizedBox(height: 8),
             Text(
               "Rent out your costumes and\nthere'll be a story here.",
               textAlign: TextAlign.center,
-              style: AppTextStyles.caption12.copyWith(color: Colors.white70),
+              style: AppTextStyles.body16.copyWith(color: AppColors.grey),
             ),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
-              height: 48,
+              height: 52,
               child: ElevatedButton(
                 onPressed: _onCreateRental,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.accent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(9),
+                  ),
                 ),
-                child: const Text('Create new rental', style: TextStyle(color: Colors.white)),
+                child:  Text(
+                  'Create new rental',
+                  style: AppTextStyles.body16.copyWith(color: Colors.white),
+                ),
               ),
             ),
           ],

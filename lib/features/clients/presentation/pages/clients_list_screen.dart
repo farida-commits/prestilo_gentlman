@@ -1,6 +1,8 @@
 // features/clients/presentation/pages/clients_list_screen.dart
 // (Rental history'ден чакырылуучу башкаруу экраны — Select баскычы жок, тап -> деталь)
 import 'package:flutter/material.dart';
+import 'package:gentleman/features/rental_history/data/datasources/rental_local_datasource.dart';
+import 'package:gentleman/features/rental_history/domain/entities/rental_record_entity.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../data/datasources/client_local_datasource.dart';
@@ -18,21 +20,34 @@ class ClientsListScreen extends StatefulWidget {
 
 class _ClientsListScreenState extends State<ClientsListScreen> {
   final ClientLocalDataSource _dataSource = ClientLocalDataSource();
-  List<ClientEntity> _clients = [];
-  bool _isLoading = true;
+  final RentalLocalDataSource _rentalDataSource = RentalLocalDataSource();
 
-  @override
-  void initState() {
-    super.initState();
-    _loadClients();
-  }
+  List<ClientEntity> _clients = [];
+  Map<String, List<RentalRecordEntity>> _recordsByClient = {};
+  bool _isLoading = true;
 
   Future<void> _loadClients() async {
     final clients = await _dataSource.getAllClients();
+    final records = await _rentalDataSource.getAllRecords(); // кошуу
+    final grouped = <String, List<RentalRecordEntity>>{};
+    for (final r in records) {
+      grouped.putIfAbsent(r.clientId, () => []).add(r);
+    }
     setState(() {
       _clients = clients;
+      _recordsByClient = grouped;
       _isLoading = false;
     });
+  }
+
+   String? _favoriteSuitFor(String clientId) {
+    final list = _recordsByClient[clientId];
+    if (list == null || list.isEmpty) return null;
+    final counts = <String, int>{};
+    for (final r in list) {
+      counts[r.suitName] = (counts[r.suitName] ?? 0) + 1;
+    }
+    return counts.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
   }
 
   Future<void> _openAdd() async {
@@ -157,10 +172,13 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
                       itemCount: _clients.length,
                       itemBuilder: (context, index) {
                         final client = _clients[index];
+                        final loyalty = _recordsByClient[client.id]?.length ?? 0;
                         return ClientCard(
                           client: client,
                           isSelected: false,
                           onTap: () => _openDetail(client),
+                          loyalty: loyalty,
+                          favoriteSuit: _favoriteSuitFor(client.id),
                         );
                       },
                     ),

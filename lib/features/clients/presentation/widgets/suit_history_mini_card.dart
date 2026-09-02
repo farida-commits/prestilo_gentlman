@@ -27,7 +27,7 @@ class SuitHistoryMiniCard extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
-                child: SuitImageWidget(imagePath: record.suitImagePath, width: 90, height: 110),
+                child: SuitImageWidget(imagePath: record.suitImagePath, width: 100, height: 110),
               ),
               Expanded(
                 child: Padding(
@@ -80,7 +80,11 @@ class SuitHistoryMiniCard extends StatelessWidget {
           style: AppTextStyles.caption12,
           children: [
             TextSpan(text: '\u2022 $label '),
-            TextSpan(text: value, style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+            TextSpan(text: value, 
+            style: const TextStyle(
+              fontWeight: FontWeight.w700, 
+              color: Colors.white,),
+            ),
           ],
         ),
       ),
