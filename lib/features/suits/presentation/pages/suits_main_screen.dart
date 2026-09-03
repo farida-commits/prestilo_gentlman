@@ -1,6 +1,7 @@
 // features/suits/presentation/pages/suits_main_screen.dart — толук алмаштыр
 import 'package:flutter/material.dart';
 import 'package:gentleman/features/rental_history/presentation/pages/rental_history_main_screen.dart';
+import 'package:gentleman/features/statistics/presentation/pages/statistics_main_screen.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../data/datasources/suit_local_datasource.dart';
@@ -201,7 +202,7 @@ class _SuitsMainScreenState extends State<SuitsMainScreen> {
                             );
                             break;
                           case 2:
-                            // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const StatisticsScreen()));
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const StatisticsMainScreen()));
                             break;
                           case 3:
                             // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));

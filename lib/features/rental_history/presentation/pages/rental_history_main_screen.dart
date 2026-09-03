@@ -1,5 +1,7 @@
 // features/rental_history/presentation/pages/rental_history_main_screen.dart
 import 'package:flutter/material.dart';
+import 'package:gentleman/features/statistics/presentation/pages/statistics_main_screen.dart';
+import 'package:gentleman/features/suits/domain/entities/client_entity.dart';
 import 'package:gentleman/features/suits/presentation/pages/suits_main_screen.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
@@ -29,6 +31,7 @@ class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
   final ClientLocalDataSource _clientDataSource = ClientLocalDataSource();
 
   List<RentalRecordEntity> _records = [];
+  List<ClientEntity> _allClients = [];
   bool _hasAnySuit = false;
   bool _isLoading = true;
   HistoryTab _tab = HistoryTab.bySuits;
@@ -42,9 +45,11 @@ class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
   Future<void> _load() async {
     final records = await _rentalDataSource.getAllRecords();
     final suits = await _suitDataSource.getAllSuits();
+    final clients = await _clientDataSource.getAllClients(); // жаңы
     setState(() {
       _records = records;
       _hasAnySuit = suits.isNotEmpty;
+      _allClients = clients; // жаңы
       _isLoading = false;
     });
   }
@@ -88,7 +93,10 @@ class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
       return ClientHistoryStats(
         clientId: entry.key,
         clientName: last.clientName,
-        clientPhotoPath: null,
+        clientPhotoPath: _allClients
+            .where((c) => c.id == entry.key)
+            .map((c) => c.photoPath)
+            .firstOrNull,
         totalIncome: total.toStringAsFixed(0),
         rentalCount: list.length,
         lastSuit: last.suitName,
@@ -274,7 +282,12 @@ class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
                           );
                           break;
                         case 2:
-                          // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const StatisticsScreen()));
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const StatisticsMainScreen(),
+                            ),
+                          );
                           break;
                         case 3:
                           // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
@@ -307,22 +320,19 @@ class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
             ),
             const SizedBox(height: 1),
             if (isActive)
-            Builder(
-              builder: (context) {
-                final textPainter = TextPainter(
-                  text: TextSpan(
-                    text: label,
-                    style: AppTextStyles.title21
-                  ),
-                  textDirection: TextDirection.ltr,
-                )..layout();
-                return Container(
-                  height: 2,
-                  width: textPainter.width,
-                  color: AppColors.accent,
-                );
-              },
-            ),
+              Builder(
+                builder: (context) {
+                  final textPainter = TextPainter(
+                    text: TextSpan(text: label, style: AppTextStyles.title21),
+                    textDirection: TextDirection.ltr,
+                  )..layout();
+                  return Container(
+                    height: 2,
+                    width: textPainter.width,
+                    color: AppColors.accent,
+                  );
+                },
+              ),
           ],
         ),
       ),
@@ -360,7 +370,7 @@ class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
                     borderRadius: BorderRadius.circular(9),
                   ),
                 ),
-                child:  Text(
+                child: Text(
                   'Create new rental',
                   style: AppTextStyles.body16.copyWith(color: Colors.white),
                 ),

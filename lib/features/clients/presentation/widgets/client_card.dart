@@ -67,7 +67,7 @@ class ClientCard extends StatelessWidget {
                     Text(client.name, style: AppTextStyles.script20),
                     const SizedBox(height: 4),
                     _row('Tel.', client.phone, valueColor: AppColors.accent),
-                    if (loyalty > 0) _row('Loyalty', '$loyalty'),
+                    _row('Loyalty', '$loyalty'),
                     if (favoriteSuit != null)
                       _row('Favorite suit', favoriteSuit!, bold: true),
                   ],

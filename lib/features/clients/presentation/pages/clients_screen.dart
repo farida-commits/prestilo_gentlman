@@ -1,6 +1,8 @@
 // features/clients/presentation/pages/clients_screen.dart
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:gentleman/features/rental_history/data/datasources/rental_local_datasource.dart';
+import 'package:gentleman/features/rental_history/domain/entities/rental_record_entity.dart';
 import 'package:gentleman/features/suits/domain/entities/client_entity.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
@@ -19,8 +21,10 @@ class ClientsScreen extends StatefulWidget {
 
 class _ClientsScreenState extends State<ClientsScreen> {
   final ClientLocalDataSource _dataSource = ClientLocalDataSource();
+  final RentalLocalDataSource _rentalDataSource = RentalLocalDataSource();
 
   List<ClientEntity> _clients = [];
+  Map<String, List<RentalRecordEntity>> _recordsByClient = {};
   bool _isLoading = true;
   String? _selectedClientId;
   DateTime? _selectedDate;
@@ -33,10 +37,26 @@ class _ClientsScreenState extends State<ClientsScreen> {
 
   Future<void> _loadClients() async {
     final clients = await _dataSource.getAllClients();
+    final records = await _rentalDataSource.getAllRecords();
+    final grouped = <String, List<RentalRecordEntity>>{};
+    for (final r in records) {
+      grouped.putIfAbsent(r.clientId, () => []).add(r);
+    }
     setState(() {
       _clients = clients;
+      _recordsByClient = grouped;
       _isLoading = false;
     });
+  }
+
+  String? _favoriteSuitFor(String clientId) {
+    final list = _recordsByClient[clientId];
+    if (list == null || list.isEmpty) return null;
+    final counts = <String, int>{};
+    for (final r in list) {
+      counts[r.suitName] = (counts[r.suitName] ?? 0) + 1;
+    }
+    return counts.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
   }
 
   Future<void> _openAddClient() async {
@@ -47,7 +67,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
     if (result != null) _loadClients();
   }
 
-   void _onClientTap(String clientId) {
+  void _onClientTap(String clientId) {
     setState(() {
       if (_selectedClientId == clientId) {
         // ошол эле клиентти кайра баскандай — тандоону жоготпойбуз, календарь ачык калат
@@ -201,38 +221,43 @@ class _ClientsScreenState extends State<ClientsScreen> {
                           itemCount: _clients.length,
                           itemBuilder: (context, index) {
                             final client = _clients[index];
-                            // final bool isSelected =
-                            //     _selectedClientId == client.id;
                             return ClientCard(
                               client: client,
                               isSelected: _selectedClientId == client.id,
-                               onTap: () => _onClientTap(client.id),
+                              onTap: () => _onClientTap(client.id),
+                              loyalty:
+                                  _recordsByClient[client.id]?.length ??
+                                  0,
+                              favoriteSuit: _favoriteSuitFor(
+                                client.id,
+                              ),
                             );
                           },
                         ),
                 ),
-                SizedBox(height: 64,)
+                SizedBox(height: 64),
               ],
             ),
           ),
           if (_selectedClientId != null)
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: () {},
-              child: Container(
-                color: Colors.black.withValues(alpha: 0.4),
-                child: Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 25),
-                    child: LeaseDatePickerCalendar(
-                      selectedDate: _selectedDate, 
-                      onDateSelected: (date) => setState(() => _selectedDate = date),
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () {},
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.4),
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 25),
+                      child: LeaseDatePickerCalendar(
+                        selectedDate: _selectedDate,
+                        onDateSelected: (date) =>
+                            setState(() => _selectedDate = date),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
           Positioned(
             left: 35,
             right: 35,
@@ -245,21 +270,21 @@ class _ClientsScreenState extends State<ClientsScreen> {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: (_selectedClientId == null || _selectedDate == null)
-                      ? null
-                      : _onSelectPressed,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.accent,
-                        disabledBackgroundColor: AppColors.accent.withValues(alpha: 0.2),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadiusGeometry.circular(9),
-                        ),
+                    onPressed:
+                        (_selectedClientId == null || _selectedDate == null)
+                        ? null
+                        : _onSelectPressed,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.accent,
+                      disabledBackgroundColor: AppColors.accent.withValues(
+                        alpha: 0.2,
                       ),
-                      child: const Text(
-                        'Select',
-                        style: AppTextStyles.body16,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadiusGeometry.circular(9),
                       ),
+                    ),
+                    child: const Text('Select', style: AppTextStyles.body16),
                   ),
                 ),
               ),
