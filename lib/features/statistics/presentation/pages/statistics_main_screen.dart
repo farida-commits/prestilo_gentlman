@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:gentleman/features/settings/settings_screen.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../rental_history/data/datasources/rental_local_datasource.dart';
@@ -13,6 +14,155 @@ import '../../../suits/presentation/pages/suits_main_screen.dart';
 import '../../../rental_history/presentation/pages/rental_history_main_screen.dart';
 import '../widgets/suit_stat_card.dart';
 import '../widgets/month_year_picker_dialog.dart';
+
+double _normalizeAngle(double angle) {
+  var a = angle % (2 * pi);
+  if (a > pi) a -= 2 * pi;
+  if (a < -pi) a += 2 * pi;
+  return a;
+}
+
+Path _buildRoundedSegmentPath({
+  required Offset center,
+  required double innerRadius,
+  required double outerRadius,
+  required double startAngle,
+  required double endAngle,
+  required double cornerRadius,
+}) {
+  final ringWidth = outerRadius - innerRadius;
+  var r = cornerRadius.clamp(0.0, ringWidth / 2 - 0.01);
+
+  Offset pointAt(double radius, double angle, Offset c) =>
+      c + Offset(radius * cos(angle), radius * sin(angle));
+
+  Path plainSegment() {
+    final p = Path()
+      ..moveTo(
+        pointAt(outerRadius, startAngle, center).dx,
+        pointAt(outerRadius, startAngle, center).dy,
+      );
+    p.arcTo(
+      Rect.fromCircle(center: center, radius: outerRadius),
+      startAngle,
+      endAngle - startAngle,
+      false,
+    );
+    p.lineTo(
+      pointAt(innerRadius, endAngle, center).dx,
+      pointAt(innerRadius, endAngle, center).dy,
+    );
+    p.arcTo(
+      Rect.fromCircle(center: center, radius: innerRadius),
+      endAngle,
+      startAngle - endAngle,
+      false,
+    );
+    p.close();
+    return p;
+  }
+
+  if (r <= 0.01) return plainSegment();
+
+  final phiOuter = asin((r / (outerRadius - r)).clamp(0.0, 1.0));
+  final phiInner = asin((r / (innerRadius + r)).clamp(0.0, 1.0));
+
+  if (phiOuter * 2 >= (endAngle - startAngle).abs() ||
+      phiInner * 2 >= (endAngle - startAngle).abs()) {
+    return plainSegment();
+  }
+
+  final a0 = startAngle;
+  final a1 = endAngle;
+
+  final oOuterStart =
+      center +
+      Offset(
+        (outerRadius - r) * cos(a0 + phiOuter),
+        (outerRadius - r) * sin(a0 + phiOuter),
+      );
+  final angT2os = a0 - pi / 2;
+  final angT1os = a0 + phiOuter;
+
+  final path = Path();
+  path.moveTo(
+    pointAt(r, angT2os, oOuterStart).dx,
+    pointAt(r, angT2os, oOuterStart).dy,
+  );
+  path.arcTo(
+    Rect.fromCircle(center: oOuterStart, radius: r),
+    angT2os,
+    angT1os - angT2os,
+    false,
+  );
+
+  path.arcTo(
+    Rect.fromCircle(center: center, radius: outerRadius),
+    a0 + phiOuter,
+    (a1 - phiOuter) - (a0 + phiOuter),
+    false,
+  );
+
+  final oOuterEnd =
+      center +
+      Offset(
+        (outerRadius - r) * cos(a1 - phiOuter),
+        (outerRadius - r) * sin(a1 - phiOuter),
+      );
+  final angT1oe = a1 - phiOuter;
+  final angT2oe = a1 + pi / 2;
+  path.arcTo(
+    Rect.fromCircle(center: oOuterEnd, radius: r),
+    angT1oe,
+    angT2oe - angT1oe,
+    false,
+  );
+
+  final oInnerEnd =
+      center +
+      Offset(
+        (innerRadius + r) * cos(a1 - phiInner),
+        (innerRadius + r) * sin(a1 - phiInner),
+      );
+  final angT2ie = a1 + pi / 2;
+  final angT1ie = (a1 - phiInner) + pi;
+
+  path.lineTo(
+    pointAt(r, angT2ie, oInnerEnd).dx,
+    pointAt(r, angT2ie, oInnerEnd).dy,
+  );
+  path.arcTo(
+    Rect.fromCircle(center: oInnerEnd, radius: r),
+    angT2ie,
+    _normalizeAngle(angT1ie - angT2ie),
+    false,
+  );
+
+  path.arcTo(
+    Rect.fromCircle(center: center, radius: innerRadius),
+    a1 - phiInner,
+    (a0 + phiInner) - (a1 - phiInner),
+    false,
+  );
+
+  final oInnerStart =
+      center +
+      Offset(
+        (innerRadius + r) * cos(a0 + phiInner),
+        (innerRadius + r) * sin(a0 + phiInner),
+      );
+  final angT1is = (a0 + phiInner) + pi;
+  final angT2is = a0 - pi / 2;
+  path.arcTo(
+    Rect.fromCircle(center: oInnerStart, radius: r),
+    angT1is,
+    _normalizeAngle(angT2is - angT1is),
+    false,
+  );
+
+  path.close();
+  return path;
+}
 
 enum StatMetric { profit, rental, overdue }
 
@@ -62,11 +212,12 @@ class _StatisticsMainScreenState extends State<StatisticsMainScreen> {
 
   static const List<Color> _palette = [
     Color(0xFFCDE6FB),
-    Color(0xFF9CCBF7),
-    Color(0xFF5FA8ED),
     Color(0xFF3B82D6),
-    Color(0xFF2563A8),
-    Color(0xFF1E4E80),
+
+    Color(0xFF37A1ED),
+    Color(0xFFC6DDFF),
+    Color(0xFF80BCFF),
+    Color(0xFF005A99),
     Color(0xFFFFFFFF),
   ];
 
@@ -279,9 +430,11 @@ class _StatisticsMainScreenState extends State<StatisticsMainScreen> {
                               color: AppColors.bmain,
                               borderRadius: BorderRadius.circular(9),
                             ),
-                            child: const Icon(
-                              Icons.calendar_month,
+                            child: Image.asset(
+                              'assets/images/calendar.png',
                               color: Colors.white,
+                              width: 32,
+                              height: 32,
                             ),
                           ),
                         ),
@@ -301,7 +454,7 @@ class _StatisticsMainScreenState extends State<StatisticsMainScreen> {
                                 padding: const EdgeInsets.only(bottom: 8),
                                 child: Text(
                                   '${_monthNames[_month - 1]} $_year',
-                                  style: AppTextStyles.headline28,
+                                  style: AppTextStyles.title21,
                                 ),
                               ),
                             Row(
@@ -323,13 +476,13 @@ class _StatisticsMainScreenState extends State<StatisticsMainScreen> {
                                 _metricTab('Overdue', StatMetric.overdue),
                               ],
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 19),
                             stats.isNotEmpty
                                 ? Text(
                                     'Your suits',
                                     style: AppTextStyles.script20,
                                   )
-                                : SizedBox(height: 8),
+                                : SizedBox(height: 32),
                             ...stats.asMap().entries.map((entry) {
                               final index = entry.key;
                               final s = entry.value;
@@ -346,7 +499,23 @@ class _StatisticsMainScreenState extends State<StatisticsMainScreen> {
                                     sliceColor:
                                         _palette[index % _palette.length],
                                     isSelected: _selectedSuitId == s.suitId,
-                                    isOverdue: _metric == StatMetric.overdue,
+                                    status: _suits
+                                        .firstWhere(
+                                          (suit) => suit.id == s.suitId,
+                                          orElse: () => SuitEntity(
+                                            id: s.suitId,
+                                            name: s.suitName,
+                                            brand: '',
+                                            price: '',
+                                            deposit: '',
+                                            fabric: '',
+                                            size: '',
+                                            description: '',
+                                            imagePath: s.suitImagePath,
+                                            status: SuitStatus.inStock,
+                                          ),
+                                        )
+                                        .status,
                                     onTap: () => setState(() {
                                       _selectedSuitId =
                                           _selectedSuitId == s.suitId
@@ -390,7 +559,10 @@ class _StatisticsMainScreenState extends State<StatisticsMainScreen> {
                     );
                     break;
                   case 3:
-                    // Settings/Profile — кийин
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                    );
                     break;
                 }
               },
@@ -403,21 +575,23 @@ class _StatisticsMainScreenState extends State<StatisticsMainScreen> {
 
   Widget _buildChart(List<_SuitStat> stats) {
     return SizedBox(
-      height: 271,
+      height: 269,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          _RoundedDonutChart(
-            values: stats.map((s) => _statValue(s)).toList(),
-            colors: List.generate(
-              stats.length,
-              (i) => _palette[i % _palette.length],
-            ),
-            selectedIndex: _selectedSuitId == null
-                ? null
-                : stats.indexWhere((s) => s.suitId == _selectedSuitId),
-            cornerRadius:14, 
-          ),
+          stats.isEmpty
+              ? const _EmptyRingPlaceholder()
+              : _RoundedDonutChart(
+                  values: stats.map((s) => _statValue(s)).toList(),
+                  colors: List.generate(
+                    stats.length,
+                    (i) => _palette[i % _palette.length],
+                  ),
+                  selectedIndex: _selectedSuitId == null
+                      ? null
+                      : stats.indexWhere((s) => s.suitId == _selectedSuitId),
+                  cornerRadius: 5,
+                ),
           Text(
             _centerLabel,
             textAlign: TextAlign.center,
@@ -432,12 +606,32 @@ class _StatisticsMainScreenState extends State<StatisticsMainScreen> {
     final isActive = _period == value;
     return GestureDetector(
       onTap: () => setState(() => _period = value),
-      child: Text(
-        label,
-        style: AppTextStyles.title21.copyWith(
-          color: isActive ? AppColors.accent : Colors.white,
-          decoration: isActive ? TextDecoration.underline : null,
-          decorationColor: AppColors.accent,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: AppTextStyles.title21.copyWith(
+                color: isActive ? AppColors.accent : Colors.white,
+              ),
+            ),
+            SizedBox(height: 1),
+            if (isActive)
+              Builder(
+                builder: (context) {
+                  final textPainter = TextPainter(
+                    text: TextSpan(text: label, style: AppTextStyles.title21),
+                    textDirection: TextDirection.ltr,
+                  )..layout();
+                  return Container(
+                    height: 2,
+                    width: textPainter.width,
+                    color: AppColors.accent,
+                  );
+                },
+              ),
+          ],
         ),
       ),
     );
@@ -450,14 +644,32 @@ class _StatisticsMainScreenState extends State<StatisticsMainScreen> {
         _metric = value;
         _selectedSuitId = null;
       }),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontFamily: 'Raleway',
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          color: isActive ? AppColors.accent : Colors.white,
-          decoration: isActive ? TextDecoration.underline : null,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: AppTextStyles.title21.copyWith(
+                color: isActive ? AppColors.accent : Colors.white,
+              ),
+            ),
+            const SizedBox(height: 1),
+            if (isActive)
+              Builder(
+                builder: (context) {
+                  final textPainter = TextPainter(
+                    text: TextSpan(text: label, style: AppTextStyles.title21),
+                    textDirection: TextDirection.ltr,
+                  )..layout();
+                  return Container(
+                    height: 2,
+                    width: textPainter.width,
+                    color: AppColors.accent,
+                  );
+                },
+              ),
+          ],
         ),
       ),
     );
@@ -489,6 +701,53 @@ class _StatisticsMainScreenState extends State<StatisticsMainScreen> {
   }
 }
 
+// файлдын аягына (класстардын соңуна) кошуласың — жаңы placeholder widget:
+class _EmptyRingPlaceholder extends StatelessWidget {
+  const _EmptyRingPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: const Size(269, 269),
+      painter: _EmptyRingPainter(),
+    );
+  }
+}
+
+class _EmptyRingPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    const outerRadius = 135.0;
+    const strokeWidth = 31.0;
+    const innerRadius = outerRadius - strokeWidth;
+
+    const gapDegrees = 1.3;
+    final gapRad = gapDegrees * pi / 180;
+
+    final startAngle = gapRad / 2;
+    final endAngle = startAngle + (2 * pi) - gapRad;
+
+    final path = _buildRoundedSegmentPath(
+      center: center,
+      innerRadius: innerRadius,
+      outerRadius: outerRadius,
+      startAngle: startAngle,
+      endAngle: endAngle,
+      cornerRadius: 5,
+    );
+
+    final paint = Paint()
+      ..color = const Color(0xFF141927)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _EmptyRingPainter oldDelegate) => false;
+}
+
 // _RoundedDonutChart виджети — PieChart ордуна колдонобуз
 class _RoundedDonutChart extends StatelessWidget {
   final List<double> values;
@@ -500,13 +759,13 @@ class _RoundedDonutChart extends StatelessWidget {
     required this.values,
     required this.colors,
     this.selectedIndex,
-    this.cornerRadius = 8,
+    this.cornerRadius = 0,
   });
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      size: const Size(271, 271),
+      size: const Size(269, 269),
       painter: _DonutPainter(
         values: values,
         colors: colors,
@@ -539,13 +798,15 @@ class _DonutPainter extends CustomPainter {
     const gapDegrees = 1.8;
     final gapRad = gapDegrees * 3.14159 / 180;
 
+    const outerRadius = 135.0;
+    const strokeWidth = 31.0;
+    const innerRadius = outerRadius - strokeWidth;
+    const explodeOffset = 8.0; // сыртка карай канча пиксел жылат
+
     double startAngle = -3.14159 / 2;
 
     for (int i = 0; i < values.length; i++) {
       final isSelected = i == selectedIndex;
-      final outerRadius = isSelected ? 132.0 : 135.0;
-      final strokeWidth = isSelected ? 44.0 : 31.0;
-      final innerRadius = outerRadius - strokeWidth;
 
       final sweep = (values[i] / total) * (2 * 3.14159) - gapRad;
       final segStart = startAngle + gapRad / 2;
@@ -564,108 +825,171 @@ class _DonutPainter extends CustomPainter {
         ..color = isSelected ? Colors.white : colors[i % colors.length]
         ..style = PaintingStyle.fill;
 
-      canvas.drawPath(path, paint);
+      if (isSelected) {
+        final midAngle = (segStart + segEnd) / 2;
+        final dx = explodeOffset * cos(midAngle);
+        final dy = explodeOffset * sin(midAngle);
+
+        canvas.save();
+        canvas.translate(dx, dy);
+        canvas.drawPath(path, paint);
+        canvas.restore();
+      } else {
+        canvas.drawPath(path, paint);
+      }
 
       startAngle += (values[i] / total) * (2 * 3.14159);
     }
   }
 
   double _normalize(double angle) {
-  var a = angle % (2 * pi);
-  if (a > pi) a -= 2 * pi;
-  if (a < -pi) a += 2 * pi;
-  return a;
-}
+    var a = angle % (2 * pi);
+    if (a > pi) a -= 2 * pi;
+    if (a < -pi) a += 2 * pi;
+    return a;
+  }
 
   Path _buildRoundedSegment({
-  required Offset center,
-  required double innerRadius,
-  required double outerRadius,
-  required double startAngle,
-  required double endAngle,
-  required double cornerRadius,
-}) {
-  final ringWidth = outerRadius - innerRadius;
-  var r = cornerRadius.clamp(0.0, ringWidth / 2 - 0.01);
+    required Offset center,
+    required double innerRadius,
+    required double outerRadius,
+    required double startAngle,
+    required double endAngle,
+    required double cornerRadius,
+  }) {
+    final ringWidth = outerRadius - innerRadius;
+    var r = cornerRadius.clamp(0.0, ringWidth / 2 - 0.01);
 
-  Offset pointAt(double radius, double angle, Offset c) =>
-      c + Offset(radius * cos(angle), radius * sin(angle));
+    Offset pointAt(double radius, double angle, Offset c) =>
+        c + Offset(radius * cos(angle), radius * sin(angle));
 
-  Path plainSegment() {
-    final p = Path()
-      ..moveTo(pointAt(outerRadius, startAngle, center).dx,
-          pointAt(outerRadius, startAngle, center).dy);
-    p.arcTo(Rect.fromCircle(center: center, radius: outerRadius),
-        startAngle, endAngle - startAngle, false);
-    p.lineTo(pointAt(innerRadius, endAngle, center).dx,
-        pointAt(innerRadius, endAngle, center).dy);
-    p.arcTo(Rect.fromCircle(center: center, radius: innerRadius), endAngle,
-        startAngle - endAngle, false);
-    p.close();
-    return p;
+    Path plainSegment() {
+      final p = Path()
+        ..moveTo(
+          pointAt(outerRadius, startAngle, center).dx,
+          pointAt(outerRadius, startAngle, center).dy,
+        );
+      p.arcTo(
+        Rect.fromCircle(center: center, radius: outerRadius),
+        startAngle,
+        endAngle - startAngle,
+        false,
+      );
+      p.lineTo(
+        pointAt(innerRadius, endAngle, center).dx,
+        pointAt(innerRadius, endAngle, center).dy,
+      );
+      p.arcTo(
+        Rect.fromCircle(center: center, radius: innerRadius),
+        endAngle,
+        startAngle - endAngle,
+        false,
+      );
+      p.close();
+      return p;
+    }
+
+    if (r <= 0.01) return plainSegment();
+
+    final phiOuter = asin((r / (outerRadius - r)).clamp(0.0, 1.0));
+    final phiInner = asin((r / (innerRadius + r)).clamp(0.0, 1.0));
+
+    if (phiOuter * 2 >= (endAngle - startAngle).abs() ||
+        phiInner * 2 >= (endAngle - startAngle).abs()) {
+      return plainSegment();
+    }
+
+    final a0 = startAngle;
+    final a1 = endAngle;
+
+    final oOuterStart =
+        center +
+        Offset(
+          (outerRadius - r) * cos(a0 + phiOuter),
+          (outerRadius - r) * sin(a0 + phiOuter),
+        );
+    final angT2os = a0 - pi / 2;
+    final angT1os = a0 + phiOuter;
+
+    final path = Path();
+    path.moveTo(
+      pointAt(r, angT2os, oOuterStart).dx,
+      pointAt(r, angT2os, oOuterStart).dy,
+    );
+    path.arcTo(
+      Rect.fromCircle(center: oOuterStart, radius: r),
+      angT2os,
+      angT1os - angT2os,
+      false,
+    );
+
+    path.arcTo(
+      Rect.fromCircle(center: center, radius: outerRadius),
+      a0 + phiOuter,
+      (a1 - phiOuter) - (a0 + phiOuter),
+      false,
+    );
+
+    final oOuterEnd =
+        center +
+        Offset(
+          (outerRadius - r) * cos(a1 - phiOuter),
+          (outerRadius - r) * sin(a1 - phiOuter),
+        );
+    final angT1oe = a1 - phiOuter;
+    final angT2oe = a1 + pi / 2;
+    path.arcTo(
+      Rect.fromCircle(center: oOuterEnd, radius: r),
+      angT1oe,
+      angT2oe - angT1oe,
+      false,
+    );
+
+    final oInnerEnd =
+        center +
+        Offset(
+          (innerRadius + r) * cos(a1 - phiInner),
+          (innerRadius + r) * sin(a1 - phiInner),
+        );
+    final angT2ie = a1 + pi / 2;
+    final angT1ie = (a1 - phiInner) + pi;
+
+    path.lineTo(
+      pointAt(r, angT2ie, oInnerEnd).dx,
+      pointAt(r, angT2ie, oInnerEnd).dy,
+    );
+    path.arcTo(
+      Rect.fromCircle(center: oInnerEnd, radius: r),
+      angT2ie,
+      _normalize(angT1ie - angT2ie),
+      false,
+    );
+
+    path.arcTo(
+      Rect.fromCircle(center: center, radius: innerRadius),
+      a1 - phiInner,
+      (a0 + phiInner) - (a1 - phiInner),
+      false,
+    );
+
+    final oInnerStart =
+        center +
+        Offset(
+          (innerRadius + r) * cos(a0 + phiInner),
+          (innerRadius + r) * sin(a0 + phiInner),
+        );
+    final angT1is = (a0 + phiInner) + pi;
+    final angT2is = a0 - pi / 2;
+    path.arcTo(
+      Rect.fromCircle(center: oInnerStart, radius: r),
+      angT1is,
+      _normalize(angT2is - angT1is),
+      false,
+    );
+
+    path.close();
+    return path;
   }
-
-  if (r <= 0.01) return plainSegment();
-
-  final phiOuter = asin((r / (outerRadius - r)).clamp(0.0, 1.0));
-  final phiInner = asin((r / (innerRadius + r)).clamp(0.0, 1.0));
-
-  if (phiOuter * 2 >= (endAngle - startAngle).abs() ||
-      phiInner * 2 >= (endAngle - startAngle).abs()) {
-    return plainSegment();
-  }
-
-  final a0 = startAngle;
-  final a1 = endAngle;
-
-  final oOuterStart = center +
-      Offset((outerRadius - r) * cos(a0 + phiOuter),
-          (outerRadius - r) * sin(a0 + phiOuter));
-  final angT2os = a0 - pi / 2;
-  final angT1os = a0 + phiOuter;
-
-  final path = Path();
-  path.moveTo(pointAt(r, angT2os, oOuterStart).dx,
-      pointAt(r, angT2os, oOuterStart).dy);
-  path.arcTo(Rect.fromCircle(center: oOuterStart, radius: r), angT2os,
-      angT1os - angT2os, false);
-
-  path.arcTo(Rect.fromCircle(center: center, radius: outerRadius),
-      a0 + phiOuter, (a1 - phiOuter) - (a0 + phiOuter), false);
-
-  final oOuterEnd = center +
-      Offset((outerRadius - r) * cos(a1 - phiOuter),
-          (outerRadius - r) * sin(a1 - phiOuter));
-  final angT1oe = a1 - phiOuter;
-  final angT2oe = a1 + pi / 2;
-  path.arcTo(Rect.fromCircle(center: oOuterEnd, radius: r), angT1oe,
-      angT2oe - angT1oe, false);
-
-  final oInnerEnd = center +
-      Offset((innerRadius + r) * cos(a1 - phiInner),
-          (innerRadius + r) * sin(a1 - phiInner));
-  final angT2ie = a1 + pi / 2;
-  final angT1ie = (a1 - phiInner) + pi;
-
-  path.lineTo(pointAt(r, angT2ie, oInnerEnd).dx,
-      pointAt(r, angT2ie, oInnerEnd).dy);
-  path.arcTo(Rect.fromCircle(center: oInnerEnd, radius: r), angT2ie,
-      _normalize(angT1ie - angT2ie), false);
-
-  path.arcTo(Rect.fromCircle(center: center, radius: innerRadius),
-      a1 - phiInner, (a0 + phiInner) - (a1 - phiInner), false);
-
-  final oInnerStart = center +
-      Offset((innerRadius + r) * cos(a0 + phiInner),
-          (innerRadius + r) * sin(a0 + phiInner));
-  final angT1is = (a0 + phiInner) + pi;
-  final angT2is = a0 - pi / 2;
-  path.arcTo(Rect.fromCircle(center: oInnerStart, radius: r), angT1is,
-      _normalize(angT2is - angT1is), false);
-
-  path.close();
-  return path;
-}
 
   @override
   bool shouldRepaint(covariant _DonutPainter oldDelegate) => true;

@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gentleman/features/clients/presentation/widgets/client_photo_picker.dart';
 import 'package:gentleman/features/suits/domain/entities/client_entity.dart';
 import 'package:image_picker/image_picker.dart';
@@ -219,7 +220,7 @@ class _AddEditClientScreenState extends State<AddEditClientScreen> {
                       SuitTextField(
                         controller: _phoneCtrl,
                         hint: 'Enter phone number',
-                        keyboardType: TextInputType.number,
+                        isNumberOnly: true,                        
                         onChanged: () {
                           _markChanged();
                           if (_isEditMode) _save();

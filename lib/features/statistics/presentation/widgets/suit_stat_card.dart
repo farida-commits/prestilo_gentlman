@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/suit_image_widget.dart';
+import '../../../suits/domain/entities/suit_entity.dart';
 
 class SuitStatCard extends StatelessWidget {
   final String suitName;
@@ -10,7 +11,7 @@ class SuitStatCard extends StatelessWidget {
   final int leaseCount;
   final Color sliceColor;
   final bool isSelected;
-  final bool isOverdue;
+  final SuitStatus status;
   final VoidCallback onTap;
 
   const SuitStatCard({
@@ -21,9 +22,20 @@ class SuitStatCard extends StatelessWidget {
     required this.leaseCount,
     required this.sliceColor,
     required this.isSelected,
-    required this.isOverdue,
+    required this.status,
     required this.onTap,
   });
+
+    Color get _bgColor {
+    switch (status) {
+      case SuitStatus.inStock:
+        return AppColors.bmain;
+      case SuitStatus.leased:
+        return AppColors.brown;
+      case SuitStatus.overdue:
+        return AppColors.wine;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +43,10 @@ class SuitStatCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
-        height: 90,
+        height: 86,
         decoration: BoxDecoration(
-          color: isOverdue ? AppColors.wine.withValues(alpha: 0.5) : AppColors.navy,
-          borderRadius: BorderRadius.circular(16),
+          color: _bgColor,
+          borderRadius: BorderRadius.circular(9),
           border: Border.all(
             color: isSelected ? AppColors.accent : Colors.transparent,
             width: 2,
@@ -45,8 +57,8 @@ class SuitStatCard extends StatelessWidget {
             Row(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(14)),
-                  child: SuitImageWidget(imagePath: suitImagePath, width: 80, height: 90),
+                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(9)),
+                  child: SuitImageWidget(imagePath: suitImagePath, width: 86, height: 86),
                 ),
                 Expanded(
                   child: Padding(
@@ -74,7 +86,7 @@ class SuitStatCard extends StatelessWidget {
                 height: 12,
                 decoration: BoxDecoration(
                   color: sliceColor,
-                  borderRadius: BorderRadius.circular(3),
+                  borderRadius: BorderRadius.circular(4),
                 ),
               ),
             ),
@@ -94,7 +106,7 @@ class SuitStatCard extends StatelessWidget {
           style: AppTextStyles.caption12,
           children: [
             TextSpan(text: '\u2022 $label '),
-            TextSpan(text: value, style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+            TextSpan(text: value, style: AppTextStyles.captionBold12.copyWith(color: Colors.white),),
           ],
         ),
       ),

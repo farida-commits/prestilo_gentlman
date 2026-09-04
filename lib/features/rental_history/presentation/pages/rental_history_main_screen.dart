@@ -1,5 +1,6 @@
 // features/rental_history/presentation/pages/rental_history_main_screen.dart
 import 'package:flutter/material.dart';
+import 'package:gentleman/features/settings/settings_screen.dart';
 import 'package:gentleman/features/statistics/presentation/pages/statistics_main_screen.dart';
 import 'package:gentleman/features/suits/domain/entities/client_entity.dart';
 import 'package:gentleman/features/suits/presentation/pages/suits_main_screen.dart';
@@ -290,7 +291,12 @@ class _RentalHistoryMainScreenState extends State<RentalHistoryMainScreen> {
                           );
                           break;
                         case 3:
-                          // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SettingsScreen(),
+                            ),
+                          );
                           break;
                       }
                     },
